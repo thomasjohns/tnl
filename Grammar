@@ -1,0 +1,25 @@
+file: definitions* EOF
+
+definitions: transform | test
+
+transform: '{' rules* '}'
+
+rules: aliases | headers | values
+
+aliases: '{' alias* '}'
+alias: NAME EQ STRING NEWLINE
+
+headers: '{' header '}'
+header: (NAME | literal) -> (single_line_pipeline | multi_line_pipeline)
+
+values: '{' value '}'
+value: (NAME | literal) -> (single_line_pipeline | multi_line_pipeline)
+
+multi_line_pipeline: '{' single_line_pipeline* '}'
+single_line_pipeline: pipeline NEWLINE
+pipeline: '|'? function ('|' function)* '|'?
+
+function: NAME argument*
+argument: NAME | literal
+
+literal: STRING | NUMBER | PATTERN
