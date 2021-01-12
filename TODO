@@ -1,0 +1,26 @@
+Basic CLI
+    tabl t.tl movies.csv
+    main.rs
+    Structopt
+    Polars
+    Read in csv data into DataFrame and print it out
+
+Stages
+    Flag to print out stage results
+    errors
+    Lexer
+        lexer.rs
+        token.rs
+    Parser
+        parser.rs
+        ast.rs
+    Symbol
+        symbol.rs
+        symbolgen.rs
+    Semantic Analysis
+        ...
+    IR Gen
+        ir.rs
+        irgen.rs
+    VM
+        vm.rs
