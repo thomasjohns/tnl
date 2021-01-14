@@ -1,11 +1,6 @@
-Basic CLI
-    tabl t.tl movies.csv
-    main.rs
-    Structopt
-    Polars
-    Read in csv data into DataFrame and print it out
-
 Stages
+    Add stages to cli
+
     Flag to print out stage results
     errors
     Lexer
@@ -22,5 +17,9 @@ Stages
     IR Gen
         ir.rs
         irgen.rs
+    Optimizer
+        ...
     VM
         vm.rs
+
+Python integration tests
