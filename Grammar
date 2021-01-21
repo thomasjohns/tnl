@@ -2,23 +2,22 @@ file: definitions* EOF
 
 definitions: transform | test
 
-transform: '{' rules* '}'
+transform: '{' rules* '}' NEWLINE+
 
 rules: aliases | headers | values
 
-aliases: '{' alias* '}'
-alias: NAME EQ STRING NEWLINE
+aliases: '{' alias* '}' NEWLINE+
+alias: NAME EQ STRING NEWLINE+
 
-headers: '{' header '}'
-header: (NAME | literal) -> (single_line_pipeline | multi_line_pipeline)
+headers: '{' header '}' NEWLINE+
+header: (NAME | literal) '->' (single_line_pipeline | multi_line_pipeline)
 
-values: '{' value '}'
-value: (NAME | literal) -> (single_line_pipeline | multi_line_pipeline)
+values: '{' value '}'+
+value: (NAME | literal) '->' (single_line_pipeline | multi_line_pipeline)
 
-multi_line_pipeline: '{' single_line_pipeline* '}'
-single_line_pipeline: pipeline NEWLINE
-pipeline: '|'? function ('|' function)* '|'?
-
+multi_line_pipeline: '{' single_line_pipeline* '}' NEWLINE+
+single_line_pipeline: pipeline NEWLINE+
+pipeline: '|'? function ('|' function)* '|'? NEWLINE+
 function: NAME argument*
 argument: NAME | literal
 
