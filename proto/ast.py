@@ -44,19 +44,19 @@ class ValueBlock(ASTNode):
 
 
 class AliasRule(ASTNode):
-    def __init__(self, name: Name, value: Literal) -> None:
+    def __init__(self, name: 'Name', value: 'Literal') -> None:
         self.name = name
         self.value = value
 
 
 class HeaderRule(ASTNode):
-    def __init__(self, header: Header, pipeline: Pipeline) -> None:
+    def __init__(self, header: Header, pipeline: 'Pipeline') -> None:
         self.header = header
         self.pipeline = pipeline
 
 
 class ValueRule(ASTNode):
-    def __init__(self, value: Value, pipeline: Pipeline) -> None:
+    def __init__(self, value: Value, pipeline: 'Pipeline') -> None:
         self.value = value
         self.pipeline = pipeline
 
@@ -67,7 +67,7 @@ class Pipeline(ASTNode):
 
 
 class Function(ASTNode):
-    def __init__(self, name: Name, args: List[Arugment]) -> None:
+    def __init__(self, name: 'Name', args: List[Argument]) -> None:
         self.name = name
         self.args = args
 
