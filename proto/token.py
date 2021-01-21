@@ -19,11 +19,6 @@ class TokenKind(Enum):
     EOF = auto()
 
 
-# FIXME move these to parser
-# LITERAL = Literal[TokenKind.NUMBER, TokenKind.PATTERN, TokenKind.STRING]
-# KEYWORD = Literal['transform', 'aliases', 'headers', 'values']
-
-
 class Position:
     def __init__(self, line: int, col: int) -> None:
         self.line = line
