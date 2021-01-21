@@ -1,19 +1,19 @@
-file: definitions* EOF
+module: definition* EOF
 
-definitions: transform | test
+definition: transform | test
 
-transform: '{' rules* '}' NEWLINE+
+transform: '{' rule_block* '}' NEWLINE+
 
-rules: aliases | headers | values
+rule_block: alias_block | header_block | value_block
 
-aliases: '{' alias* '}' NEWLINE+
-alias: NAME EQ STRING NEWLINE+
+alias_block: '{' alias_rule* '}' NEWLINE+
+alias_rule: NAME EQ literal NEWLINE+
 
-headers: '{' header '}' NEWLINE+
-header: (NAME | literal) '->' (single_line_pipeline | multi_line_pipeline)
+header_block: '{' header_rule* '}' NEWLINE+
+header_rule: (NAME | literal) '->' (single_line_pipeline | multi_line_pipeline)
 
-values: '{' value '}'+
-value: (NAME | literal) '->' (single_line_pipeline | multi_line_pipeline)
+value_block: '{' value_rule* '}' NEWLINE+
+value_rule: (NAME | literal) '->' (single_line_pipeline | multi_line_pipeline)
 
 multi_line_pipeline: '{' single_line_pipeline* '}' NEWLINE+
 single_line_pipeline: pipeline NEWLINE+
