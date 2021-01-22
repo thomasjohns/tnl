@@ -1,8 +1,8 @@
 import sys
 
-from proto.lexer import Lexer
-from proto.parser import Parser
-from proto.pretty_printer import print_module
+from tablang.lexer import Lexer
+from tablang.parser import Parser
+from tablang.pretty_printer import print_module
 
 
 _, src_file, csv_file = sys.argv

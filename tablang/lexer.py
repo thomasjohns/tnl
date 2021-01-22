@@ -1,9 +1,9 @@
 from typing import List
 from typing import NoReturn
 
-from proto.token import Position
-from proto.token import Token
-from proto.token import TokenKind
+from tablang.token import Position
+from tablang.token import Token
+from tablang.token import TokenKind
 
 
 class Lexer:

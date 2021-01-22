@@ -1,17 +1,17 @@
 from typing import List
 from typing import NoReturn
 
-from proto.ast import Module
-from proto.ast import Definition
-from proto.ast import Transform
-from proto.ast import Test
-from proto.ast import RuleBlock
-from proto.ast import AliasBlock
-from proto.ast import HeaderBlock
-from proto.ast import ValueBlock
-from proto.ast import Name
-from proto.token import Token
-from proto.token import TokenKind
+from tablang.ast import Module
+from tablang.ast import Definition
+from tablang.ast import Transform
+from tablang.ast import Test
+from tablang.ast import RuleBlock
+from tablang.ast import AliasBlock
+from tablang.ast import HeaderBlock
+from tablang.ast import ValueBlock
+from tablang.ast import Name
+from tablang.token import Token
+from tablang.token import TokenKind
 
 
 TRANSFORM = 'transform'

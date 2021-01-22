@@ -1,5 +1,5 @@
-from proto.ast import ASTNode
-from proto.ast import Module
+from tablang.ast import ASTNode
+from tablang.ast import Module
 
 
 def print_module(ast: Module, indent: int = 4) -> None:
