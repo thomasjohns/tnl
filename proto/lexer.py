@@ -23,7 +23,7 @@ class Lexer:
         print(f'In file {self.filename} at {self.pos.loc}.')
         exit(1)
 
-    def advance(self) -> None:
+    def eat(self) -> None:
         if self.reached_eof:
             self.error('Unexpected end of file.')
         self.src_index += 1
@@ -37,7 +37,7 @@ class Lexer:
 
     def lex(self) -> List[Token]:
         self.tokens = []
-        self.advance()
+        self.eat()
         while not self.reached_eof:
             if self.cur_char == ' ' or self.cur_char == '\t':
                 pass
@@ -72,7 +72,7 @@ class Lexer:
                     Token(TokenKind.INVALID, None, self.pos.loc)
                 )
 
-            self.advance()
+            self.eat()
 
         self.tokens.append(Token(TokenKind.EOF, None, self.pos.loc))
 
@@ -87,7 +87,7 @@ class Lexer:
         value = ''
         while self.cur_char.isdigit():
             value += self.cur_char
-            self.advance()
+            self.eat()
         self.tokens.append(Token(TokenKind.NUMBER, value, initial_loc))
 
     def lex_name(self) -> None:
@@ -99,12 +99,12 @@ class Lexer:
             self.cur_char.isdigit()
         ):
             value += self.cur_char
-            self.advance()
+            self.eat()
         self.tokens.append(Token(TokenKind.NAME, value, initial_loc))
 
     def lex_string(self) -> None:
         initial_loc = self.pos.loc
-        self.advance()
+        self.eat()
         value = ''
         escaping = False
         while not escaping and self.cur_char != '\'':
@@ -113,7 +113,7 @@ class Lexer:
             else:
                 value += self.cur_char
                 escaping = False
-            self.advance()
+            self.eat()
         self.tokens.append(Token(TokenKind.STRING, value, initial_loc))
 
     def lex_pattern(self) -> None:
@@ -126,17 +126,17 @@ class Lexer:
             else:
                 value += self.cur_char
                 escaping = False
-            self.advance()
+            self.eat()
         self.tokens.append(Token(TokenKind.PATTERN, value, initial_loc))
 
     def lex_comment(self) -> None:
         while self.cur_char != '\n':
-            self.advance()
+            self.eat()
         self.pos.newline()
 
     def lex_arrow(self) -> None:
         initial_loc = self.pos.loc
-        self.advance()
+        self.eat()
         value = f'-{self.cur_char}'
         if self.cur_char != '>':
             self.tokens.append(Token(TokenKind.INVALID, value, initial_loc))

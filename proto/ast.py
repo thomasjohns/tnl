@@ -19,7 +19,8 @@ class Module(ASTNode):
 
 
 class Transform(ASTNode):
-    def __init__(self, rule_blocks: List[RuleBlock]) -> None:
+    def __init__(self, name: 'Name', rule_blocks: List[RuleBlock]) -> None:
+        self.name = name
         self.rule_blocks = rule_blocks
 
 
