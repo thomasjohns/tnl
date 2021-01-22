@@ -55,7 +55,8 @@ class Parser:
         self.cur_token = Token(TokenKind.INVALID, None, (0, 0))
 
     def error(self, message: str) -> NoReturn:
-        print('Syntax Error:', message)
+        print('Syntax Error:')
+        print(message)
         print(f'In file {self.filename}.')
         exit(1)
 
@@ -64,7 +65,8 @@ class Parser:
             kind = kinds[0]
             message = (
                 f'Expected token {kind.name}, '
-                f'but found {self.cur_token.kind.name}.'
+                f'but found {self.cur_token.kind.name} '
+                f'at {self.cur_token.loc}.'
             )
         else:
             message = ''
@@ -82,7 +84,7 @@ class Parser:
         if self.cur_token.kind not in {*kinds}:
             self.error_expecting(*kinds)
 
-    def eat_expecting_at_least_one_newline(self) -> None:
+    def eat_newlines_expecting_at_least_one(self) -> None:
         self.eat_expecting(TokenKind.NEWLINE)
         while self.cur_token.kind == TokenKind.NEWLINE:
             self.eat()
@@ -110,7 +112,6 @@ class Parser:
         return Module(definitions)
 
     def parse_definition(self) -> Definition:
-        self.eat()
         if self.cur_token.lexeme == TRANSFORM:
             transform = self.parse_transform()
             return transform
@@ -131,12 +132,12 @@ class Parser:
                 'Transform name'
             )
         self.eat_expecting(TokenKind.LBRACKET)
-        self.eat_expecting_at_least_one_newline()
+        self.eat_newlines_expecting_at_least_one()
         rule_blocks: List[RuleBlock] = []
         while self.cur_token.kind != TokenKind.RBRACKET:
             rule_block = self.parse_rule_block()
             rule_blocks.append(rule_block)
-        self.eat_expecting_at_least_one_newline()
+        self.eat_newlines_expecting_at_least_one()
         return Transform(Name(lexeme), rule_blocks)
 
     def parse_test(self) -> Test:
@@ -144,7 +145,8 @@ class Parser:
         return Test()
 
     def parse_rule_block(self) -> RuleBlock:
-        self.eat_expecting(TokenKind.NAME)
+        if self.cur_token.kind != TokenKind.NAME:
+            self.error_expecting(TokenKind.NAME)
         rule_kind = self.cur_token.lexeme
         rule_block: RuleBlock
         if rule_kind == ALIASES:
