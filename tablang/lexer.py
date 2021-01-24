@@ -35,6 +35,15 @@ class Lexer:
 
         self.pos.advance()
 
+    @property
+    def next_char(self) -> str:
+        if self.src_index + 1 < len(self.src):
+            return self.src[self.src_index + 1]
+        elif self.src_index + 1 == len(self.src):
+            error(f'Unexpected end of file after {self.cur_char}')
+        else:
+            error('Unexpected end of file.')
+
     def lex(self) -> List[Token]:
         self.tokens = []
         self.eat()
@@ -49,10 +58,28 @@ class Lexer:
                 self.tokens.append(
                     Token(TokenKind.RBRACKET, '}', self.pos.loc)
                 )
+            elif self.cur_char == '[':
+                self.tokens.append(
+                    Token(TokenKind.LBRACE, '[', self.pos.loc)
+                )
+            elif self.cur_char == ']':
+                self.tokens.append(
+                    Token(TokenKind.RBRACE, ']', self.pos.loc)
+                )
             elif self.cur_char == '=':
-                self.tokens.append(Token(TokenKind.EQ, '=', self.pos.loc))
+                self.lex_eq()
             elif self.cur_char == '|':
                 self.tokens.append(Token(TokenKind.PIPE, '|', self.pos.loc))
+            elif self.cur_char == '*':
+                self.tokens.append(Token(TokenKind.MULT, '*', self.pos.loc))
+            elif self.cur_char == '/':
+                self.tokens.append(Token(TokenKind.DIV, '/', self.pos.loc))
+            elif self.cur_char == '+':
+                self.tokens.append(Token(TokenKind.ADD, '+', self.pos.loc))
+            elif self.cur_char == '-':
+                self.tokens.append(Token(TokenKind.SUB, '-', self.pos.loc))
+            elif self.cur_char == '%':
+                self.tokens.append(Token(TokenKind.MOD, '%', self.pos.loc))
             elif self.cur_char == '\n':
                 self.lex_newline()
             elif self.cur_char == '\'':
@@ -142,3 +169,10 @@ class Lexer:
             self.tokens.append(Token(TokenKind.INVALID, value, initial_loc))
         else:
             self.tokens.append(Token(TokenKind.ARROW, value, initial_loc))
+
+    def lex_eq(self) -> None:
+        if self.next_char == '=':
+            self.tokens.append(Token(TokenKind.DEQ, '==', self.pos.loc))
+            self.eat()
+        else:
+            self.tokens.append(Token(TokenKind.EQ, '=', self.pos.loc))

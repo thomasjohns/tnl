@@ -7,8 +7,16 @@ class TokenKind(Enum):
     ARROW = '->'
     LBRACKET = '{'
     RBRACKET = '}'
+    LBRACE = '['
+    RBRACE = ']'
+    DEQ = '=='
     EQ = '='
     PIPE = '|'
+    MULT = '*'
+    DIV = '/'
+    ADD = '+'
+    SUB = '-'
+    MOD = '%'
     NEWLINE = '\n'
     NAME = auto()
     KEWORD = auto()
