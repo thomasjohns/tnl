@@ -7,18 +7,32 @@ transform: NAME '{' NEWLINE+ rule_block* '}' NEWLINE+
 rule_block: alias_block | header_block | value_block
 
 alias_block: '{' NEWLINE+ alias_rule* '}' NEWLINE+
-alias_rule: NAME EQ literal NEWLINE+
+alias_rule: NAME EQ rvalue NEWLINE+
 
 header_block: '{' NEWLINE+ header_rule* '}' NEWLINE+
-header_rule: (NAME | literal) '->' (single_line_pipeline | multi_line_pipeline)
+header_rule: rvalue '->' execution
 
 value_block: '{' NEWLINE+ value_rule* '}' NEWLINE+
-value_rule: (NAME | literal) '->' (single_line_pipeline | multi_line_pipeline)
+value_rule: rvalue '->' execution
+
+execution: single_line_pipeline | multi_line_pipeline
 
 multi_line_pipeline: '{' NEWLINE+ single_line_pipeline* '}' NEWLINE+
 single_line_pipeline: pipeline NEWLINE+
-pipeline: '|'? function ('|' function)* '|'? NEWLINE+
-function: NAME argument*
-argument: NAME | literal
+pipeline: '|'? operation ('|' operation)* '|'? NEWLINE+
 
+operation: expr | map | conditional
+
+map: NAME arguments
+arguments: rvalue*
+
+conditional: IF expr execution (ELSE execution)?
+
+expr: factor_expr | term_expr | rvalue
+
+factor_expr: expr ('*' | '/') expr
+term_expr: expr ('+' | '-' | '%') expr
+
+rvalue: NAME | literal | column_selector
+column_selector: '[' literal ']'
 literal: STRING | NUMBER | PATTERN
