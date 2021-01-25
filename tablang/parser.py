@@ -1,5 +1,6 @@
 from typing import List
 from typing import NoReturn
+from typing import Optional
 
 from tablang.ast import Module
 from tablang.ast import Definition
@@ -9,6 +10,12 @@ from tablang.ast import RuleBlock
 from tablang.ast import AliasBlock
 from tablang.ast import HeaderBlock
 from tablang.ast import ValueBlock
+from tablang.ast import HeaderRule
+from tablang.ast import Pipeline
+from tablang.ast import Operation
+from tablang.ast import RValue
+from tablang.ast import Header
+from tablang.ast import String
 from tablang.ast import Name
 from tablang.token import Token
 from tablang.token import TokenKind
@@ -76,18 +83,48 @@ class Parser:
         self.token_index += 1
         if self.token_index < len(self.tokens):
             self.cur_token = self.tokens[self.token_index]
+            print(self.cur_token)
         else:
             self.error('Unexpected end of file.')
+
+    @property
+    def next_token(self) -> Token:
+        if self.token_index + 1 < len(self.tokens):
+            return self.tokens[self.token_index]
+        elif self.token_index + 1 == len(self.tokens):
+            self.error(f'Unexpected end of file at {self.cur_token}')
+        else:
+            self.error('Unexpected end of file')
 
     def eat_expecting(self, *kinds: TokenKind) -> None:
         self.eat()
         if self.cur_token.kind not in {*kinds}:
             self.error_expecting(*kinds)
 
+    def expect_and_eat(self, *kinds: TokenKind) -> None:
+        if self.cur_token.kind not in {*kinds}:
+            self.error_expecting(*kinds)
+        self.eat()
+
+    def expect(self, *kinds: TokenKind) -> None:
+        if self.cur_token.kind not in {*kinds}:
+            self.error_expecting(*kinds)
+
     def eat_newlines_expecting_at_least_one(self) -> None:
-        self.eat_expecting(TokenKind.NEWLINE)
+        self.expect_and_eat(TokenKind.NEWLINE)
         while self.cur_token.kind == TokenKind.NEWLINE:
             self.eat()
+
+    def eat_any_newlines(self) -> None:
+        while self.cur_token.kind == TokenKind.NEWLINE:
+            self.eat()
+
+    @staticmethod
+    def assume_lexeme(lexeme: Optional[str]) -> str:
+        assert lexeme is not None, (
+            f'found {TokenKind.NAME.name} token with no lexeme'
+        )
+        return lexeme
 
     @property
     def at_definition(self) -> bool:
@@ -106,9 +143,7 @@ class Parser:
         while self.at_definition:
             definition = self.parse_definition()
             definitions.append(definition)
-        if self.cur_token.kind != TokenKind.EOF:
-            value = self.cur_token.lexeme or ''
-            self.error(f'Unexpected token {value} at {self.cur_token.loc}')
+        self.expect(TokenKind.EOF)
         return Module(definitions)
 
     def parse_definition(self) -> Definition:
@@ -121,23 +156,24 @@ class Parser:
         assert 0, 'should be at a definition'
 
     def parse_transform(self) -> Transform:
-        self.eat_expecting(TokenKind.NAME)
-        lexeme = self.cur_token.lexeme
-        assert lexeme is not None, (
-            f'found {TokenKind.NAME.name} token with no lexeme'
-        )
+        self.expect_and_eat(TokenKind.NAME)
+        lexeme = self.assume_lexeme(self.cur_token.lexeme)
         if lexeme in RESERVED_NAMES:
             self.error(
                 f'Name {lexeme} is a reserved word an cannot be used as a '
                 'Transform name'
             )
-        self.eat_expecting(TokenKind.LBRACKET)
-        self.eat_newlines_expecting_at_least_one()
+        self.expect_and_eat(TokenKind.NAME)
+        self.eat_any_newlines()
+        self.expect_and_eat(TokenKind.LBRACKET)
+        self.eat_any_newlines()
         rule_blocks: List[RuleBlock] = []
         while self.cur_token.kind != TokenKind.RBRACKET:
             rule_block = self.parse_rule_block()
             rule_blocks.append(rule_block)
-        self.eat_newlines_expecting_at_least_one()
+        self.eat_any_newlines()
+        self.expect_and_eat(TokenKind.RBRACKET)
+        self.eat_any_newlines()
         return Transform(Name(lexeme), rule_blocks)
 
     def parse_test(self) -> Test:
@@ -145,8 +181,7 @@ class Parser:
         return Test()
 
     def parse_rule_block(self) -> RuleBlock:
-        if self.cur_token.kind != TokenKind.NAME:
-            self.error_expecting(TokenKind.NAME)
+        self.expect(TokenKind.NAME)
         rule_kind = self.cur_token.lexeme
         rule_block: RuleBlock
         if rule_kind == ALIASES:
@@ -167,9 +202,50 @@ class Parser:
         return AliasBlock([])
 
     def parse_header_block(self) -> HeaderBlock:
-        # TODO
+        self.expect_and_eat(TokenKind.NAME)
+        self.eat_any_newlines()
+        self.expect_and_eat(TokenKind.LBRACKET)
+        self.eat_any_newlines()
+        header_rules: List[HeaderRule] = []
+        while self.cur_token.kind != TokenKind.RBRACKET:
+            header_rule = self.parse_header_rule()
+            header_rules.append(header_rule)
+        self.eat_any_newlines()
+        self.expect_and_eat(TokenKind.RBRACKET)
+        self.eat_any_newlines()
         return HeaderBlock([])
 
     def parse_value_block(self) -> ValueBlock:
         # TODO
         return ValueBlock([])
+
+    def parse_header_rule(self) -> HeaderRule:
+        header = self.parse_header()
+        self.expect_and_eat(TokenKind.ARROW)
+        pipeline = self.parse_execution()
+        self.eat_newlines_expecting_at_least_one()
+        return HeaderRule(header, pipeline)
+
+    def parse_header(self) -> Header:
+        # TODO for now just assume String
+        #      in the future we will have to peek
+        string = self.parse_string()
+        return string
+
+    def parse_rvalue(self) -> RValue:
+        # TODO
+        ...
+
+    def parse_execution(self) -> Pipeline:
+        # TODO for now just assume String
+        #      in the future we will have to peek
+        operations: List[Operation] = []
+        string = self.parse_string()
+        operations.append(string)
+        return Pipeline(operations)
+
+    def parse_string(self) -> String:
+        self.expect(TokenKind.STRING)
+        lexeme = self.assume_lexeme(self.cur_token.lexeme)
+        self.eat()
+        return String(lexeme)

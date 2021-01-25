@@ -40,9 +40,9 @@ class Lexer:
         if self.src_index + 1 < len(self.src):
             return self.src[self.src_index + 1]
         elif self.src_index + 1 == len(self.src):
-            error(f'Unexpected end of file after {self.cur_char}')
+            self.error(f'Unexpected end of file at {self.cur_char}')
         else:
-            error('Unexpected end of file.')
+            self.error('Unexpected end of file.')
 
     def lex(self) -> List[Token]:
         self.tokens = []
@@ -66,6 +66,14 @@ class Lexer:
                 self.tokens.append(
                     Token(TokenKind.RBRACE, ']', self.pos.loc)
                 )
+            elif self.cur_char == '(':
+                self.tokens.append(
+                    Token(TokenKind.LPAREN, '(', self.pos.loc)
+                )
+            elif self.cur_char == ')':
+                self.tokens.append(
+                    Token(TokenKind.RPAREN, ')', self.pos.loc)
+                )
             elif self.cur_char == '=':
                 self.lex_eq()
             elif self.cur_char == '|':
@@ -76,10 +84,10 @@ class Lexer:
                 self.tokens.append(Token(TokenKind.DIV, '/', self.pos.loc))
             elif self.cur_char == '+':
                 self.tokens.append(Token(TokenKind.ADD, '+', self.pos.loc))
-            elif self.cur_char == '-':
-                self.tokens.append(Token(TokenKind.SUB, '-', self.pos.loc))
             elif self.cur_char == '%':
                 self.tokens.append(Token(TokenKind.MOD, '%', self.pos.loc))
+            elif self.cur_char == '!':
+                self.tokens.append(Token(TokenKind.NOT, '!', self.pos.loc))
             elif self.cur_char == '\n':
                 self.lex_newline()
             elif self.cur_char == '\'':
@@ -93,7 +101,7 @@ class Lexer:
             elif self.cur_char == '#':
                 self.lex_comment()
             elif self.cur_char == '-':
-                self.lex_arrow()
+                self.lex_arrow_or_sub()
             else:
                 self.tokens.append(
                     Token(TokenKind.INVALID, None, self.pos.loc)
@@ -161,14 +169,14 @@ class Lexer:
             self.eat()
         self.pos.newline()
 
-    def lex_arrow(self) -> None:
+    def lex_arrow_or_sub(self) -> None:
         initial_loc = self.pos.loc
-        self.eat()
-        value = f'-{self.cur_char}'
-        if self.cur_char != '>':
-            self.tokens.append(Token(TokenKind.INVALID, value, initial_loc))
-        else:
+        if self.next_char == '>':
+            self.eat()
+            value = f'-{self.cur_char}'
             self.tokens.append(Token(TokenKind.ARROW, value, initial_loc))
+        else:
+            self.tokens.append(Token(TokenKind.SUB, '-', initial_loc))
 
     def lex_eq(self) -> None:
         if self.next_char == '=':

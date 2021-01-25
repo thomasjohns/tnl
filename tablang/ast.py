@@ -1,12 +1,16 @@
+from typing import Literal as TypeLiteral
 from typing import List
+from typing import Optional
 from typing import Union
 
 
 Definition = Union['Transform', 'Test']
 RuleBlock = Union['AliasBlock', 'HeaderBlock', 'ValueBlock']
-Header = Union['Name', 'Literal']
-Value = Union['Name', 'Literal']
+Header = Union['Name', 'String', 'Pattern']
 Argument = Union['Name', 'Literal']
+# TODO: check to see if these lints are flake8 bugs
+UnaryOpOp = TypeLiteral['-', '!']  # noqa F722
+BinaryOpOp = TypeLiteral['*', '/', '%', '+', '-']  # noqa F722
 
 
 class ASTNode:
@@ -57,28 +61,72 @@ class HeaderRule(ASTNode):
 
 
 class ValueRule(ASTNode):
-    def __init__(self, value: Value, pipeline: 'Pipeline') -> None:
-        self.value = value
+    def __init__(self, rvalue: 'RValue', pipeline: 'Pipeline') -> None:
+        self.rvalue = rvalue
         self.pipeline = pipeline
 
 
 class Pipeline(ASTNode):
-    def __init__(self, functions: List['Function']) -> None:
-        self.functions = functions
+    def __init__(self, operations: List['Operation']) -> None:
+        self.operations = operations
 
 
-class Function(ASTNode):
+class Operation(ASTNode):
+    pass
+
+
+class Expr(Operation):
+    pass
+
+
+class BinaryOp(Expr):
+    def __init__(self, op: BinaryOpOp, left: Expr, right: Expr) -> None:
+        self.op = op
+        self.left = left
+        self.right = right
+
+
+class UnaryOp(Expr):
+    def __init__(self, op: UnaryOpOp, expr: Expr) -> None:
+        self.op = op
+        self.expr = expr
+
+
+# TODO: make something like LogicalOp for easier semantic analysis
+#       the negation, unary_op vs binary_op might be interesting
+class Conditional(Operation):
+    def __init__(
+        self,
+        test: Expr,
+        true_pipeline: Pipeline,
+        false_pipeline: Optional[Pipeline],
+    ) -> None:
+        self.test = test
+        self.true_pipeline = true_pipeline
+        self.false_pipeline = false_pipeline
+
+
+class Map(Operation):
     def __init__(self, name: 'Name', args: List[Argument]) -> None:
         self.name = name
         self.args = args
 
 
-class Name(ASTNode):
+class RValue(Expr):
+    pass
+
+
+class ColumnSelector(RValue):
     def __init__(self, data: str) -> None:
         self.data = data
 
 
-class Literal(ASTNode):
+class Name(RValue):
+    def __init__(self, data: str) -> None:
+        self.data = data
+
+
+class Literal(RValue):
     pass
 
 

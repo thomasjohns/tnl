@@ -9,6 +9,8 @@ class TokenKind(Enum):
     RBRACKET = '}'
     LBRACE = '['
     RBRACE = ']'
+    LPAREN = '('
+    RPAREN = ')'
     DEQ = '=='
     EQ = '='
     PIPE = '|'
@@ -17,6 +19,7 @@ class TokenKind(Enum):
     ADD = '+'
     SUB = '-'
     MOD = '%'
+    NOT = '!'
     NEWLINE = '\n'
     NAME = auto()
     KEWORD = auto()
