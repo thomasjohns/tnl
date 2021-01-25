@@ -2,18 +2,18 @@ module: definition* EOF
 
 definition: transform | test
 
-transform: NAME '{' NEWLINE+ rule_block* '}' NEWLINE+
+transform: NAME '{' NEWLINE+ rule_block* '}' NEWLINE*
 
 rule_block: alias_block | header_block | value_block
 
-alias_block: '{' NEWLINE+ alias_rule* '}' NEWLINE+
+alias_block: '{' NEWLINE+ alias_rule* '}' NEWLINE*
 alias_rule: NAME EQ rvalue NEWLINE+
 
-header_block: '{' NEWLINE+ header_rule* '}' NEWLINE+
-header_rule: rvalue '->' execution
+header_block: '{' NEWLINE+ header_rule* '}' NEWLINE*
+header_rule: header '->' execution NEWLINE+
 
 value_block: '{' NEWLINE+ value_rule* '}' NEWLINE+
-value_rule: rvalue '->' execution
+value_rule: rvalue '->' execution NEWLINE+
 
 execution: single_line_pipeline | multi_line_pipeline
 
@@ -28,11 +28,14 @@ arguments: rvalue*
 
 conditional: IF expr execution (ELSE execution)?
 
-expr: factor_expr | term_expr | rvalue
+expr: grouped_expr | factor_expr | term_expr | unary_expr | rvalue
 
-factor_expr: expr ('*' | '/') expr
-term_expr: expr ('+' | '-' | '%') expr
+grouped_expr: '(' expr ')'
+factor_expr: expr ('*' | '/' | '%') expr
+term_expr: expr ('+' | '-') expr
+unary_expr: ('-' | '!') expr
 
 rvalue: NAME | literal | column_selector
-column_selector: '[' literal ']'
+column_selector: '[' header ']'
+header: STRING | NAME | PATTERN
 literal: STRING | NUMBER | PATTERN
