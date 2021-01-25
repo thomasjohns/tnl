@@ -1,4 +1,5 @@
-from enum import auto, Enum
+from enum import auto
+from enum import Enum
 from typing import Optional
 from typing import Tuple
 

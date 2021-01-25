@@ -212,7 +212,7 @@ class Parser:
         self.eat_any_newlines()
         self.expect_and_eat(TokenKind.RBRACKET)
         self.eat_any_newlines()
-        return HeaderBlock([])
+        return HeaderBlock(header_rules)
 
     def parse_value_block(self) -> ValueBlock:
         # TODO

@@ -36,7 +36,7 @@ class CodePrinter:
     def dedent(self) -> None:
         self.cur_indent_spaces -= self.indent_spaces
 
-    def indenting_print(self, message: str, end: str = '\n') -> None:
+    def indenting_print(self, message: str = '', end: str = '\n') -> None:
         print(' ' * self.cur_indent_spaces, end='')
         print(message, end=end)
 

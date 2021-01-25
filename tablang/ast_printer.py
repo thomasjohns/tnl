@@ -36,7 +36,7 @@ class ASTPrinter:
     def dedent(self) -> None:
         self.cur_indent_spaces -= self.indent_spaces
 
-    def indenting_print(self, message: str, end: str = '\n') -> None:
+    def indenting_print(self, message: str = '', end: str = '\n') -> None:
         print(' ' * self.cur_indent_spaces, end='')
         print(message, end=end)
 
@@ -90,13 +90,15 @@ class ASTPrinter:
         self.indenting_print('header_rules=[', end='')
         if node.header_rules:
             print()
+            self.indent()
             for header_rule in node.header_rules:
                 self.visit(header_rule)
+            self.dedent()
             self.indenting_print('],')
         else:
             print('],')
         self.dedent()
-        self.indenting_print(')')
+        self.indenting_print('),')
 
     def visit_ValueBlock(self, node: ValueBlock) -> None:
         self.indenting_print('ValueBlock(')
@@ -121,8 +123,10 @@ class ASTPrinter:
         self.indent()
         self.indenting_print('header=', end='')
         self.visit(node.header)
+        print(',')
         self.indenting_print('pipeline=', end='')
         self.visit(node.pipeline)
+        print(',')
         self.dedent()
         self.indenting_print('),')
 
@@ -137,20 +141,22 @@ class ASTPrinter:
         self.indenting_print('),')
 
     def visit_Pipeline(self, node: Pipeline) -> None:
-        self.indenting_print('Pipeline(')
+        print('Pipeline(')
         self.indent()
         self.indenting_print('operations=[', end='')
         if node.operations:
             print()
             self.indent()
             for operation in node.operations:
+                self.indenting_print(end='')
                 self.visit(operation)
                 print(',')
             self.dedent()
+            self.indenting_print('],')
         else:
             print('],')
         self.dedent()
-        self.indenting_print(')')
+        self.indenting_print(')', end='')
 
     def visit_BinaryOp(self, node: BinaryOp) -> None:
         self.indenting_print('BinaryOp(')
