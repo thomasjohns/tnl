@@ -88,9 +88,19 @@ class CodePrinter:
         pass
 
     def visit_HeaderRule(self, node: HeaderRule) -> None:
+        self.indenting_print(end='')
         self.visit(node.header)
-        print(' -> ')
-        self.visit(node.pipeline)
+        if len(node.pipeline.operations) > 1:
+            print(' -> {')
+            self.indent()
+            self.visit(node.pipeline)
+            print()
+            self.dedent()
+            self.indenting_print('}')
+        else:
+            print(' -> ', end='')
+            self.visit(node.pipeline)
+            print()
 
     def visit_ValueRule(self, node: ValueRule) -> None:
         self.visit(node.rvalue)
@@ -101,9 +111,14 @@ class CodePrinter:
         self.indenting_print('}')
 
     def visit_Pipeline(self, node: Pipeline) -> None:
-        for operation in node.operations:
-            self.indenting_print('| ')
-            self.visit(operation)
+        if len(node.operations) > 1:
+            for operation in node.operations:
+                self.indenting_print('| ', end='')
+                self.visit(operation)
+        elif len(node.operations) == 1:
+            self.visit(node.operations[0])
+        else:
+            print('{}')
 
     def visit_BinaryOp(self, node: BinaryOp) -> None:
         print('(', end='')
