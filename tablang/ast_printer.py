@@ -20,14 +20,14 @@ from tablang.ast import Number
 from tablang.ast import Pattern
 
 
-def print_module(ast: Module, indent: int = 4) -> None:
-    ast_printer = CodePrinter(indent)
+def print_module_ast(ast: Module, indent: int = 2) -> None:
+    ast_printer = AstPrinter(indent)
     ast_printer.visit(ast)
 
 
-class CodePrinter:
+class AstPrinter:
     def __init__(self, indent: int) -> None:
-        self.indent = 4
+        self.indent = indent
         self.cur_indent = 0
 
     def visit(self, node: ASTNode) -> None:
