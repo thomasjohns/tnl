@@ -20,15 +20,25 @@ from tablang.ast import Number
 from tablang.ast import Pattern
 
 
-def print_module_code(ast: Module, indent: int = 4) -> None:
-    ast_printer = CodePrinter(indent)
+def print_module_code(ast: Module, indent_spaces: int = 4) -> None:
+    ast_printer = CodePrinter(indent_spaces)
     ast_printer.visit(ast)
 
 
 class CodePrinter:
-    def __init__(self, indent: int) -> None:
-        self.indent = indent
-        self.cur_indent = 0
+    def __init__(self, indent_spaces: int) -> None:
+        self.indent_spaces = indent_spaces
+        self.cur_indent_spaces = 0
+
+    def indent(self) -> None:
+        self.cur_indent_spaces += self.indent_spaces
+
+    def dedent(self) -> None:
+        self.cur_indent_spaces -= self.indent_spaces
+
+    def indenting_print(self, message: str, end: str = '\n') -> None:
+        print(' ' * self.cur_indent_spaces, end='')
+        print(message, end=end)
 
     def visit(self, node: ASTNode) -> None:
         node_type = node.__class__.__name__
@@ -36,12 +46,18 @@ class CodePrinter:
         getattr(self, node_visit)(node)
 
     def visit_Module(self, node: Module) -> None:
-        # TODO
-        pass
+        for definition in node.definitions:
+            self.visit(definition)
 
     def visit_Transform(self, node: Transform) -> None:
-        # TODO
-        pass
+        self.indenting_print('transform ', end='')
+        self.visit(node.name)
+        print(' {')
+        self.indent()
+        for rule_block in node.rule_blocks:
+            self.visit(rule_block)
+        self.dedent()
+        self.indenting_print('}')
 
     def visit_Test(self, node: Test) -> None:
         # TODO
@@ -52,60 +68,92 @@ class CodePrinter:
         pass
 
     def visit_HeaderBlock(self, node: HeaderBlock) -> None:
-        # TODO
-        pass
+        self.indenting_print('headers {')
+        self.indent()
+        for header_rule in node.header_rules:
+            self.visit(header_rule)
+        self.dedent()
+        self.indenting_print('}')
 
     def visit_ValueBlock(self, node: ValueBlock) -> None:
-        # TODO
-        pass
+        self.indenting_print('values {')
+        self.indent()
+        for value_rule in node.value_rules:
+            self.visit(value_rule)
+        self.dedent()
+        self.indenting_print('}')
 
     def visit_AliasRule(self, node: AliasRule) -> None:
         # TODO
         pass
 
     def visit_HeaderRule(self, node: HeaderRule) -> None:
-        # TODO
-        pass
+        self.visit(node.header)
+        print(' -> ')
+        self.visit(node.pipeline)
 
     def visit_ValueRule(self, node: ValueRule) -> None:
-        # TODO
-        pass
+        self.visit(node.rvalue)
+        print(' -> {')
+        self.indent()
+        self.visit(node.pipeline)
+        self.dedent()
+        self.indenting_print('}')
 
     def visit_Pipeline(self, node: Pipeline) -> None:
-        # TODO
-        pass
+        for operation in node.operations:
+            self.indenting_print('| ')
+            self.visit(operation)
 
     def visit_BinaryOp(self, node: BinaryOp) -> None:
-        # TODO
-        pass
+        print('(', end='')
+        self.visit(node.left)
+        print(f' {node.op} ', end='')
+        self.visit(node.right)
+        print(')', end='')
 
     def visit_UnaryOp(self, node: UnaryOp) -> None:
-        # TODO
-        pass
+        print(f'({node.op} ', end='')
+        self.visit(node.expr)
+        print(')', end='')
 
     def visit_Conditional(self, node: Conditional) -> None:
-        # TODO
-        pass
+        self.indenting_print('if ', end='')
+        self.visit(node.test)
+        print(' {')
+        self.indent()
+        self.visit(node.true_pipeline)
+        self.dedent()
+        self.indenting_print('}', end='')
+        if node.false_pipeline is not None:
+            print(' else {')
+            self.indent()
+            self.visit(node.false_pipeline)
+            self.dedent()
+            self.indenting_print('}')
+        else:
+            print()
 
     def visit_Map(self, node: Map) -> None:
-        # TODO
-        pass
+        self.visit(node.name)
+        print(' ', end='')
+        for arg in node.args:
+            self.visit(arg)
+            print(' ', end='')
 
     def visit_ColumnSelector(self, node: ColumnSelector) -> None:
-        # TODO
-        pass
+        print('[', end='')
+        self.visit(node.data)
+        print(']', end='')
 
     def visit_Name(self, node: Name) -> None:
-        # TODO
-        pass
+        print(node.data, end='')
 
     def visit_String(self, node: String) -> None:
-        # TODO
-        pass
+        print(f'\'{node.data}\'', end='')
 
     def visit_Number(self, node: Number) -> None:
-        # TODO
-        pass
+        print(node.data, end='')
 
     def visit_Pattern(self, node: Pattern) -> None:
         # TODO

@@ -83,7 +83,6 @@ class Parser:
         self.token_index += 1
         if self.token_index < len(self.tokens):
             self.cur_token = self.tokens[self.token_index]
-            print(self.cur_token)
         else:
             self.error('Unexpected end of file.')
 
