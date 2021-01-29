@@ -117,8 +117,8 @@ class RValue(Expr):
 
 
 class ColumnSelector(RValue):
-    def __init__(self, data: Header) -> None:
-        self.data = data
+    def __init__(self, header: Header) -> None:
+        self.header = header
 
 
 class Name(RValue):

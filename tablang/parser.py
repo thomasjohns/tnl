@@ -11,12 +11,16 @@ from tablang.ast import AliasBlock
 from tablang.ast import HeaderBlock
 from tablang.ast import ValueBlock
 from tablang.ast import HeaderRule
+from tablang.ast import ValueRule
 from tablang.ast import Pipeline
 from tablang.ast import Operation
 from tablang.ast import RValue
 from tablang.ast import Header
-from tablang.ast import String
 from tablang.ast import Name
+from tablang.ast import ColumnSelector
+from tablang.ast import String
+from tablang.ast import Number
+from tablang.ast import Pattern
 from tablang.token import Token
 from tablang.token import TokenKind
 
@@ -76,7 +80,11 @@ class Parser:
                 f'at {self.cur_token.loc}.'
             )
         else:
-            message = ''
+            names_of_kinds = [kind.name for kind in kinds]
+            message = (
+                f'Expecing one of {names_of_kinds}, but found '
+                f'{self.cur_token.kind.name} at {self.cur_token.loc}.'
+            )
         self.error(message)
 
     def eat(self) -> None:
@@ -214,11 +222,8 @@ class Parser:
         self.eat_any_newlines()
         return HeaderBlock(header_rules)
 
-    def parse_value_block(self) -> ValueBlock:
-        # TODO
-        return ValueBlock([])
-
     def parse_header_rule(self) -> HeaderRule:
+        # we check for 'headers' specifically in parse_rule_block
         header = self.parse_header()
         self.expect_and_eat(TokenKind.ARROW)
         pipeline = self.parse_execution()
@@ -226,18 +231,69 @@ class Parser:
         return HeaderRule(header, pipeline)
 
     def parse_header(self) -> Header:
-        # TODO for now just assume String
-        #      in the future we will have to peek
-        string = self.parse_string()
-        return string
+        header: Header
+        if self.cur_token.kind == TokenKind.STRING:
+            header = self.parse_string()
+        elif self.cur_token.kind == TokenKind.NAME:
+            header = self.parse_name()
+        elif self.cur_token.kind == TokenKind.PATTERN:
+            header = self.parse_pattern()
+        else:
+            self.error_expecting(
+                TokenKind.STRING,
+                TokenKind.NAME,
+                TokenKind.PATTERN,
+            )
+        return header
+
+    def parse_value_block(self) -> ValueBlock:
+        # we check for 'values' specifically in parse_rule_block
+        self.expect_and_eat(TokenKind.NAME)
+        self.eat_any_newlines()
+        self.expect_and_eat(TokenKind.LBRACKET)
+        self.eat_any_newlines()
+        value_rules: List[ValueRule] = []
+        while self.cur_token.kind != TokenKind.RBRACKET:
+            value_rule = self.parse_value_rule()
+            value_rules.append(value_rule)
+        self.eat_any_newlines()
+        self.expect_and_eat(TokenKind.RBRACKET)
+        self.eat_any_newlines()
+        return ValueBlock(value_rules)
+
+    def parse_value_rule(self) -> ValueRule:
+        rvalue = self.parse_rvalue()
+        self.expect_and_eat(TokenKind.ARROW)
+        pipeline = self.parse_execution()
+        self.eat_newlines_expecting_at_least_one()
+        return ValueRule(rvalue, pipeline)
 
     def parse_rvalue(self) -> RValue:
-        # TODO
-        ...
+        rvalue: RValue
+        if self.cur_token.kind == TokenKind.NAME:
+            rvalue = self.parse_name()
+        elif self.cur_token.kind == TokenKind.STRING:
+            rvalue = self.parse_string()
+        elif self.cur_token.kind == TokenKind.NUMBER:
+            rvalue = self.parse_number()
+        elif self.cur_token.kind == TokenKind.PATTERN:
+            rvalue = self.parse_pattern()
+        elif self.cur_token.kind == TokenKind.LBRACE:
+            rvalue = self.parse_column_selector()
+        else:
+            self.error_expecting(
+                TokenKind.NAME,
+                TokenKind.STRING,
+                TokenKind.NUMBER,
+                TokenKind.PATTERN,
+                TokenKind.LBRACE,
+            )
+        return rvalue
 
     def parse_execution(self) -> Pipeline:
         # TODO for now just assume String
         #      in the future we will have to peek
+        #      and check for single or multi line
         operations: List[Operation] = []
         string = self.parse_string()
         operations.append(string)
@@ -248,3 +304,28 @@ class Parser:
         lexeme = self.assume_lexeme(self.cur_token.lexeme)
         self.eat()
         return String(lexeme)
+
+    def parse_pattern(self) -> Pattern:
+        self.expect(TokenKind.PATTERN)
+        lexeme = self.assume_lexeme(self.cur_token.lexeme)
+        self.eat()
+        return Pattern(lexeme)
+
+    def parse_name(self) -> Name:
+        self.expect(TokenKind.NAME)
+        lexeme = self.assume_lexeme(self.cur_token.lexeme)
+        self.eat()
+        return Name(lexeme)
+
+    def parse_number(self) -> Number:
+        self.expect(TokenKind.NUMBER)
+        lexeme = self.assume_lexeme(self.cur_token.lexeme)
+        self.eat()
+        data = int(lexeme)
+        return Number(data)
+
+    def parse_column_selector(self) -> ColumnSelector:
+        self.expect_and_eat(TokenKind.LBRACE)
+        header = self.parse_header()
+        self.expect_and_eat(TokenKind.RBRACE)
+        return ColumnSelector(header)

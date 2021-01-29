@@ -158,7 +158,7 @@ class CodePrinter:
 
     def visit_ColumnSelector(self, node: ColumnSelector) -> None:
         print('[', end='')
-        self.visit(node.data)
+        self.visit(node.header)
         print(']', end='')
 
     def visit_Name(self, node: Name) -> None:
