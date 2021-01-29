@@ -106,8 +106,10 @@ class ASTPrinter:
         self.indenting_print('value_rules=[', end='')
         if node.value_rules:
             print()
+            self.indent()
             for value_rule in node.value_rules:
                 self.visit(value_rule)
+            self.dedent()
             self.indenting_print('],')
         else:
             print('],')
@@ -135,8 +137,10 @@ class ASTPrinter:
         self.indent()
         self.indenting_print('rvalue=', end='')
         self.visit(node.rvalue)
+        print(',')
         self.indenting_print('pipeline=', end='')
         self.visit(node.pipeline)
+        print(',')
         self.dedent()
         self.indenting_print('),')
 
@@ -219,7 +223,7 @@ class ASTPrinter:
         self.indenting_print('),')
 
     def visit_ColumnSelector(self, node: ColumnSelector) -> None:
-        print('ColumnSelector(data=', end='')
+        print('ColumnSelector(header=', end='')
         self.visit(node.header)
         print(')', end='')
 

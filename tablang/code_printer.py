@@ -103,12 +103,18 @@ class CodePrinter:
             print()
 
     def visit_ValueRule(self, node: ValueRule) -> None:
+        self.indenting_print(end='')
         self.visit(node.rvalue)
-        print(' -> {')
-        self.indent()
-        self.visit(node.pipeline)
-        self.dedent()
-        self.indenting_print('}')
+        if len(node.pipeline.operations) > 1:
+            print(' -> {')
+            self.indent()
+            self.visit(node.pipeline)
+            self.dedent()
+            self.indenting_print('}')
+        else:
+            print(' -> ', end='')
+            self.visit(node.pipeline)
+            print()
 
     def visit_Pipeline(self, node: Pipeline) -> None:
         if len(node.operations) > 1:
