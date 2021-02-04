@@ -204,15 +204,17 @@ class ASTPrinter:
         self.indenting_print(')')
 
     def visit_Map(self, node: Map) -> None:
-        self.indenting_print('Map(')
+        print('Map(')
         self.indent()
         self.indenting_print('name=', end='')
         self.visit(node.name)
+        print(',')
         self.indenting_print('args=[', end='')
         if node.args:
             print()
             self.indent()
             for arg in node.args:
+                self.indenting_print(end='')
                 self.visit(arg)
                 print(',')
             self.dedent()
@@ -220,7 +222,7 @@ class ASTPrinter:
         else:
             print('],')
         self.dedent()
-        self.indenting_print('),')
+        self.indenting_print(')', end='')
 
     def visit_ColumnSelector(self, node: ColumnSelector) -> None:
         print('ColumnSelector(header=', end='')
