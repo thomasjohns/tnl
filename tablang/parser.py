@@ -1,6 +1,11 @@
+from typing import Dict
 from typing import List
 from typing import NoReturn
 from typing import Optional
+from typing import Protocol
+from typing import Type
+
+import pandas as pd  # type: ignore
 
 from tablang.ast import Module
 from tablang.ast import Definition
@@ -18,6 +23,9 @@ from tablang.ast import RValue
 from tablang.ast import Header
 from tablang.ast import Name
 from tablang.ast import ColumnSelector
+from tablang.ast import Conditional
+from tablang.ast import Map
+from tablang.ast import Expr
 from tablang.ast import String
 from tablang.ast import Number
 from tablang.ast import Pattern
@@ -30,12 +38,16 @@ TEST = 'test'
 ALIASES = 'aliases'
 HEADERS = 'headers'
 VALUES = 'values'
+IF = 'if'
+ELSE = 'else'
 KEYWORDS = {
     TRANSFORM,
     TEST,
     ALIASES,
     HEADERS,
     VALUES,
+    IF,
+    ELSE,
 }
 
 # TODO: perhaps there is be a better way to manage build-in functions
@@ -55,6 +67,33 @@ BUILT_IN_FUNCTIONS = {
 }
 
 RESERVED_NAMES = KEYWORDS | BUILT_IN_FUNCTIONS
+
+
+# TODO turn this into module or something
+#      and protocol for e.g. num_args
+class MapImpl(Protocol):
+    num_args: int
+
+
+# TODO maybe have protocol for header and value maps
+class AddImpl(MapImpl):
+    num_args = 1
+
+    def map_value(self, s: pd.Series, arg1: int) -> pd.Series:
+        return s + arg1
+
+
+class MultImpl(MapImpl):
+    num_args = 1
+
+    def map_value(self, s: pd.Series, arg1: int) -> pd.Series:
+        return s * arg1
+
+
+MAP_IMPL_REGISTRY: Dict[str, Type[MapImpl]] = {
+    ADD: AddImpl,
+    MULT: MultImpl,
+}
 
 
 class Parser:
@@ -265,7 +304,7 @@ class Parser:
         rvalue = self.parse_rvalue()
         self.expect_and_eat(TokenKind.ARROW)
         pipeline = self.parse_execution()
-        self.eat_newlines_expecting_at_least_one()
+        self.eat_any_newlines()
         return ValueRule(rvalue, pipeline)
 
     def parse_rvalue(self) -> RValue:
@@ -291,13 +330,69 @@ class Parser:
         return rvalue
 
     def parse_execution(self) -> Pipeline:
-        # TODO for now just assume String
-        #      in the future we will have to peek
-        #      and check for single or multi line
-        operations: List[Operation] = []
-        string = self.parse_string()
-        operations.append(string)
+        if self.next_token.kind == TokenKind.LBRACKET:
+            operations = self.parse_multi_line_pipeline()
+        else:
+            operations = self.parse_single_line_pipeline()
         return Pipeline(operations)
+
+    def parse_single_line_pipeline(self) -> List[Operation]:
+        pipeline = self.parse_pipeline()
+        return pipeline
+
+    def parse_multi_line_pipeline(self) -> List[Operation]:
+        # TODO
+        pass
+
+    def parse_pipeline(self) -> List[Operation]:
+        if self.cur_token.kind == TokenKind.PIPE:
+            self.eat()
+        operations: List[Operation] = []
+        operation = self.parse_operation()
+        operations.append(operation)
+        while self.cur_token.kind == TokenKind.PIPE:
+            self.eat()
+            operation = self.parse_operation()
+            operations.append(operation)
+        return operations
+
+    def parse_operation(self) -> Operation:
+        operation: Operation
+        if self.cur_token.kind == TokenKind.NAME:
+            lexeme = self.assume_lexeme(self.cur_token.lexeme)
+            if lexeme == IF:
+                operation = self.parse_conditional()
+            else:
+                operation = self.parse_map()
+        else:
+            operation = self.parse_expr()
+        return operation
+
+    def parse_conditional(self) -> Conditional:
+        # TODO
+        ...
+
+    def parse_map(self) -> Map:
+        name = self.parse_name()
+        if name.data not in MAP_IMPL_REGISTRY:
+            self.error(f'Unrecognized map \'{name}\'.')
+        map_impl = MAP_IMPL_REGISTRY[name.data]
+        args: List[RValue] = []
+        for _ in range(map_impl.num_args):
+            arg = self.parse_rvalue()
+            args.append(arg)
+        return Map(name, args)
+
+    def parse_expr(self) -> Expr:
+        expr: Expr
+        if self.cur_token.kind == TokenKind.NUMBER:
+            expr = self.parse_number()
+        elif self.cur_token.kind == TokenKind.STRING:
+            expr = self.parse_string()
+        else:
+            # TODO for now assume string or number literal
+            assert 0
+        return expr
 
     def parse_string(self) -> String:
         self.expect(TokenKind.STRING)

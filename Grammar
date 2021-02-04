@@ -19,7 +19,7 @@ execution: single_line_pipeline | multi_line_pipeline
 
 multi_line_pipeline: '{' NEWLINE+ single_line_pipeline* '}' NEWLINE+
 single_line_pipeline: pipeline NEWLINE+
-pipeline: '|'? operation ('|' operation)* '|'? NEWLINE+
+pipeline: '|'? operation ('|' operation)* NEWLINE+
 
 operation: expr | map | conditional
 

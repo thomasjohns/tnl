@@ -7,7 +7,6 @@ from typing import Union
 Definition = Union['Transform', 'Test']
 RuleBlock = Union['AliasBlock', 'HeaderBlock', 'ValueBlock']
 Header = Union['Name', 'String', 'Pattern']
-Argument = Union['Name', 'Literal']
 # TODO: check to see if these lints are flake8 bugs
 UnaryOpOp = TypeLiteral['-', '!']  # noqa F722
 BinaryOpOp = TypeLiteral['*', '/', '%', '+', '-']  # noqa F722
@@ -107,7 +106,7 @@ class Conditional(Operation):
 
 
 class Map(Operation):
-    def __init__(self, name: 'Name', args: List[Argument]) -> None:
+    def __init__(self, name: 'Name', args: List['RValue']) -> None:
         self.name = name
         self.args = args
 
