@@ -121,6 +121,7 @@ class CodePrinter:
             for operation in node.operations:
                 self.indenting_print('| ', end='')
                 self.visit(operation)
+                print()
         elif len(node.operations) == 1:
             self.visit(node.operations[0])
         else:
