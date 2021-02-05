@@ -79,20 +79,36 @@ class MapImpl(Protocol):
 class AddImpl(MapImpl):
     num_args = 1
 
-    def map_value(self, s: pd.Series, arg1: int) -> pd.Series:
+    def map_values(self, s: pd.Series, arg1: int) -> pd.Series:
         return s + arg1
 
 
 class MultImpl(MapImpl):
     num_args = 1
 
-    def map_value(self, s: pd.Series, arg1: int) -> pd.Series:
+    def map_values(self, s: pd.Series, arg1: int) -> pd.Series:
         return s * arg1
+
+
+class ReplaceImpl(MapImpl):
+    num_args = 2
+
+    def map_values(self, s: pd.Series, arg1: str, arg2: str) -> pd.Series:
+        return s.replace(arg1, arg2)
+
+
+class TrimImpl(MapImpl):
+    num_args = 0
+
+    def map_values(self, s: pd.Series) -> pd.Series:
+        return s.str.strip()
 
 
 MAP_IMPL_REGISTRY: Dict[str, Type[MapImpl]] = {
     ADD: AddImpl,
     MULT: MultImpl,
+    REPLACE: ReplaceImpl,
+    TRIM: TrimImpl,
 }
 
 
@@ -307,28 +323,6 @@ class Parser:
         self.eat_any_newlines()
         return ValueRule(rvalue, pipeline)
 
-    def parse_rvalue(self) -> RValue:
-        rvalue: RValue
-        if self.cur_token.kind == TokenKind.NAME:
-            rvalue = self.parse_name()
-        elif self.cur_token.kind == TokenKind.STRING:
-            rvalue = self.parse_string()
-        elif self.cur_token.kind == TokenKind.NUMBER:
-            rvalue = self.parse_number()
-        elif self.cur_token.kind == TokenKind.PATTERN:
-            rvalue = self.parse_pattern()
-        elif self.cur_token.kind == TokenKind.LBRACE:
-            rvalue = self.parse_column_selector()
-        else:
-            self.error_expecting(
-                TokenKind.NAME,
-                TokenKind.STRING,
-                TokenKind.NUMBER,
-                TokenKind.PATTERN,
-                TokenKind.LBRACE,
-            )
-        return rvalue
-
     def parse_execution(self) -> Pipeline:
         if self.next_token.kind == TokenKind.LBRACKET:
             operations = self.parse_multi_line_pipeline()
@@ -337,14 +331,6 @@ class Parser:
         return Pipeline(operations)
 
     def parse_single_line_pipeline(self) -> List[Operation]:
-        pipeline = self.parse_pipeline()
-        return pipeline
-
-    def parse_multi_line_pipeline(self) -> List[Operation]:
-        # TODO
-        pass
-
-    def parse_pipeline(self) -> List[Operation]:
         if self.cur_token.kind == TokenKind.PIPE:
             self.eat()
         operations: List[Operation] = []
@@ -354,6 +340,17 @@ class Parser:
             self.eat()
             operation = self.parse_operation()
             operations.append(operation)
+        return operations
+
+    def parse_multi_line_pipeline(self) -> List[Operation]:
+        self.expect_and_eat(TokenKind.LBRACKET)
+        self.eat_any_newlines()
+        operations: List[Operation] = []
+        while self.cur_token.kind != TokenKind.RBRACKET:
+            more_operations = self.parse_single_line_pipeline()
+            operations.extend(more_operations)
+            self.eat_any_newlines()
+        self.expect_and_eat(TokenKind.RBRACKET)
         return operations
 
     def parse_operation(self) -> Operation:
@@ -383,6 +380,28 @@ class Parser:
             args.append(arg)
         return Map(name, args)
 
+    def parse_rvalue(self) -> RValue:
+        rvalue: RValue
+        if self.cur_token.kind == TokenKind.NAME:
+            rvalue = self.parse_name()
+        elif self.cur_token.kind == TokenKind.STRING:
+            rvalue = self.parse_string()
+        elif self.cur_token.kind == TokenKind.NUMBER:
+            rvalue = self.parse_number()
+        elif self.cur_token.kind == TokenKind.PATTERN:
+            rvalue = self.parse_pattern()
+        elif self.cur_token.kind == TokenKind.LBRACE:
+            rvalue = self.parse_column_selector()
+        else:
+            self.error_expecting(
+                TokenKind.NAME,
+                TokenKind.STRING,
+                TokenKind.NUMBER,
+                TokenKind.PATTERN,
+                TokenKind.LBRACE,
+            )
+        return rvalue
+
     def parse_expr(self) -> Expr:
         expr: Expr
         if self.cur_token.kind == TokenKind.NUMBER:
@@ -391,7 +410,7 @@ class Parser:
             expr = self.parse_string()
         else:
             # TODO for now assume string or number literal
-            assert 0
+            assert 0, self.cur_token
         return expr
 
     def parse_string(self) -> String:
