@@ -7,30 +7,30 @@ from typing import Type
 
 import pandas as pd  # type: ignore
 
-from tablang.ast import Module
-from tablang.ast import Definition
-from tablang.ast import Transform
-from tablang.ast import Test
-from tablang.ast import RuleBlock
-from tablang.ast import AliasBlock
-from tablang.ast import HeaderBlock
-from tablang.ast import ValueBlock
-from tablang.ast import HeaderRule
-from tablang.ast import ValueRule
-from tablang.ast import Pipeline
-from tablang.ast import Operation
-from tablang.ast import RValue
-from tablang.ast import Header
-from tablang.ast import Name
-from tablang.ast import ColumnSelector
-from tablang.ast import Conditional
-from tablang.ast import Map
-from tablang.ast import Expr
-from tablang.ast import String
-from tablang.ast import Number
-from tablang.ast import Pattern
-from tablang.token import Token
-from tablang.token import TokenKind
+from tnl.ast import Module
+from tnl.ast import Definition
+from tnl.ast import Transform
+from tnl.ast import Test
+from tnl.ast import RuleBlock
+from tnl.ast import AliasBlock
+from tnl.ast import HeaderBlock
+from tnl.ast import ValueBlock
+from tnl.ast import HeaderRule
+from tnl.ast import ValueRule
+from tnl.ast import Pipeline
+from tnl.ast import Operation
+from tnl.ast import RValue
+from tnl.ast import Header
+from tnl.ast import Name
+from tnl.ast import ColumnSelector
+from tnl.ast import Conditional
+from tnl.ast import Map
+from tnl.ast import Expr
+from tnl.ast import String
+from tnl.ast import Number
+from tnl.ast import Pattern
+from tnl.token import Token
+from tnl.token import TokenKind
 
 
 TRANSFORM = 'transform'

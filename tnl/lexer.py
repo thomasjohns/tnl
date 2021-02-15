@@ -1,9 +1,9 @@
 from typing import List
 from typing import NoReturn
 
-from tablang.token import Position
-from tablang.token import Token
-from tablang.token import TokenKind
+from tnl.token import Position
+from tnl.token import Token
+from tnl.token import TokenKind
 
 
 class Lexer:

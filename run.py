@@ -5,11 +5,11 @@ import warnings
 warnings.simplefilter(action='ignore', category=UserWarning)
 import pandas as pd  # type: ignore
 
-from tablang.lexer import Lexer
-from tablang.parser import Parser
-from tablang.ast_printer import print_module_ast
-from tablang.code_printer import print_module_code
-from tablang.vm import transform
+from tnl.lexer import Lexer
+from tnl.parser import Parser
+from tnl.ast_printer import print_module_ast
+from tnl.code_printer import print_module_code
+from tnl.vm import transform
 
 _, src_file, csv_file = sys.argv
 
