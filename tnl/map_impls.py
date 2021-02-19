@@ -44,14 +44,12 @@ class ReplaceImpl(MapImpl):
 class TrimImpl(MapImpl):
     num_args = 0
 
-    # FIXME no args needed
     @staticmethod
-    def map_values(s: pd.Series, *args: String) -> pd.Series:
+    def map_values(s: pd.Series) -> pd.Series:
         return s.str.strip()
 
-    # FIXME no args needed
     @staticmethod
-    def map_string(s: str, *args: String) -> str:
+    def map_string(s: str) -> str:
         return s.strip()
 
 
