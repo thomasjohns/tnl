@@ -37,8 +37,8 @@ def exec_cli() -> int:
     stage_group.add_argument('--print-ast', action='store_const', const=True)
     stage_group.add_argument('--print-code', action='store_const', const=True)
     stage_group.add_argument('--check', action='store_const', const=True)
+    stage_group.add_argument('--compile', dest='target')
     stage_group.add_argument('--interpret', action='store_const', const=True)
-    stage_group.add_argument('--compile', dest='target', default='pandas')
 
     args = argparser.parse_args()
 
@@ -80,14 +80,14 @@ def exec_cli() -> int:
     # TODO: don't necessarily assume csv in the future
     data = pd.read_csv(args.data_file)
 
-    if args.interpret:
-        transformed_data = transform(ast, data)
-        print(transformed_data.to_csv(index=False))
+    if args.target:
+        # TODO: implement compile to pandas code
+        # if args.compile == 'pandas'  ...
+        print(args.target)
+        print('`compile` does nothing right now.')
         return 0
 
-    # TODO: implement compile to pandas code
-    # if args.compile == 'pandas'  ...
-    print(args.target)
-    print('`compile` does nothing right now.')
+    transformed_data = transform(ast, data)
+    print(transformed_data.to_csv(index=False))
 
     return 0
