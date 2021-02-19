@@ -158,10 +158,9 @@ class CodePrinter:
 
     def visit_Map(self, node: Map) -> None:
         self.visit(node.name)
-        print(' ', end='')
         for arg in node.args:
-            self.visit(arg)
             print(' ', end='')
+            self.visit(arg)
 
     def visit_ColumnSelector(self, node: ColumnSelector) -> None:
         print('[', end='')

@@ -202,9 +202,11 @@ class Parser:
 
     def parse_module(self) -> Module:
         definitions: List[Definition] = []
+        self.eat_any_newlines()
         while self.at_definition:
             definition = self.parse_definition()
             definitions.append(definition)
+            self.eat_any_newlines()
         self.expect(TokenKind.EOF)
         return Module(definitions)
 
