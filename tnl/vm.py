@@ -83,9 +83,12 @@ class VM:
         # TODO handle name later (look up in symbol table
         assert isinstance(node.rvalue, ColumnSelector)
         # TODO: consider copy perf later
-        s_before = self.data[node.rvalue.header.data].copy()
-        s_after = self.exec_values_pipeline(node.pipeline, s_before)
-        self.data[node.rvalue.header.data] = s_after
+        # TODO: we may want to provide a way for user to learn that
+        #       their rule didn't apply to any header
+        if node.rvalue.header.data in self.data.columns:
+            s_before = self.data[node.rvalue.header.data].copy()
+            s_after = self.exec_values_pipeline(node.pipeline, s_before)
+            self.data[node.rvalue.header.data] = s_after
 
     def exec_string_pipeline(self, node: Pipeline, s: str) -> str:
         for operation in node.operations:
