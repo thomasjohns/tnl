@@ -94,7 +94,6 @@ class CodePrinter:
             print(' -> {')
             self.indent()
             self.visit(node.pipeline)
-            print()
             self.dedent()
             self.indenting_print('}')
         else:
