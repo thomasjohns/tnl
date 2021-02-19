@@ -1,6 +1,3 @@
-from typing import Callable
-from typing import List
-
 import pandas as pd  # type: ignore
 
 from tnl.ast import ASTNode
@@ -23,20 +20,18 @@ from tnl.ast import Name
 from tnl.ast import String
 from tnl.ast import Number
 from tnl.ast import Pattern
+from tnl.map_impls import MAP_IMPL_REGISTRY
 
 
-HeaderMap = Callable[[str], str]
-
-
-def transform(ast: Module, df: pd.DataFrame) -> pd.DataFrame:
-    vm = VM(df)
+def transform(ast: Module, data: pd.DataFrame) -> pd.DataFrame:
+    vm = VM(data)
     vm.execute(ast)
-    return vm.df
+    return vm.data
 
 
 class VM:
-    def __init__(self, df: pd.DataFrame) -> None:
-        self.df = df
+    def __init__(self, data: pd.DataFrame) -> None:
+        self.data = data
 
     def execute(self, node: Module) -> None:
         self.visit(node)
@@ -68,8 +63,8 @@ class VM:
             self.visit(header_rule)
 
     def visit_ValueBlock(self, node: ValueBlock) -> None:
-        # FIXME
-        pass
+        for value_rule in node.value_rules:
+            self.visit(value_rule)
 
     def visit_AliasRule(self, node: AliasRule) -> None:
         # TODO
@@ -80,47 +75,63 @@ class VM:
         # TODO handle name later (look up in symbol table
         assert isinstance(node.header, String)
         from_str = node.header.data
-        maps = self.visit_header_Pipeline(node.pipeline)
-        to_str = from_str[:]
-        for m in maps:
-            to_str = m(to_str)
-        self.df = self.df.rename(columns={from_str: to_str})
+        to_str = self.exec_string_pipeline(node.pipeline, from_str)
+        self.data = self.data.rename(columns={from_str: to_str})
 
     def visit_ValueRule(self, node: ValueRule) -> None:
-        # FIXME
-        pass
+        # TODO handle pattern later
+        # TODO handle name later (look up in symbol table
+        assert isinstance(node.rvalue, ColumnSelector)
+        # TODO: consider copy perf later
+        s_before = self.data[node.rvalue.header.data].copy()
+        s_after = self.exec_values_pipeline(node.pipeline, s_before)
+        self.data[node.rvalue.header.data] = s_after
 
-    # TODO we may need the concept of a HeaderPipeline that does
-    #      HeaderTransform's (Callable[str, str]) and a ValuePipeline
-    #      that does pandas dataframe transforms
-    #      (Callable[pd.DataFrame, pd.DataFrame]). We may also need
-    #      HeaderMap's and ValueMap's etc.
-    #      The different kinds of Pipelines could possibly share a lot of
-    #      code, and maybe all of the pretty printing code.
-    #
-    #      Or setting a context could do it?
-    #
-    #      Or maybe visit_header_Map
-    #               visit_value_Map
-    #
-    #      See aboce visit_Pipeline call in visit_HeaderRule.
-    #      Maybe caller has all needed context?
-    #
-    #      Or are they always string tranforms, and the parent knows
-    #      whether to apply to string or apply to pandas series using
-    #      .apply?
-    def visit_header_Pipeline(self, node: Pipeline) -> List[HeaderMap]:
-        maps: List[HeaderMap] = []
+    def exec_string_pipeline(self, node: Pipeline, s: str) -> str:
         for operation in node.operations:
-            # FIXME hardcode for now
             if isinstance(operation, String):
-                m = lambda s: operation.data  # noqa: E731
-                maps.append(m)
-        return maps
+                s = operation.data
+            elif isinstance(operation, Map):
+                map_impl = MAP_IMPL_REGISTRY[operation.name.data]
+                if hasattr(map_impl, 'map_string'):
+                    s = map_impl.map_string(s, *operation.args)
+                else:
+                    message = (
+                        'missed static analysis check for map '
+                        f'{operation.name.data}'
+                    )
+                    assert 0, message
+            else:
+                # FIXME
+                assert 0, 'not implemented'
+        return s
+
+    def exec_values_pipeline(self, node: Pipeline, s: pd.Series) -> pd.Series:
+        for operation in node.operations:
+            if isinstance(operation, ColumnSelector):
+                # TODO consider copy perf later
+                s = self.data[operation.header].copy()
+            elif isinstance(operation, String):
+                s = pd.Series(operation.data for _ in range(len(self.data)))
+            elif isinstance(operation, Number):
+                s = pd.Series(operation.data for _ in range(len(self.data)))
+            elif isinstance(operation, Map):
+                map_impl = MAP_IMPL_REGISTRY[operation.name.data]
+                if hasattr(map_impl, 'map_values'):
+                    s = map_impl.map_values(s, *operation.args)
+                else:
+                    message = (
+                        'missed static analysis check for map '
+                        f'{operation.name.data}'
+                    )
+                    assert 0, message
+            else:
+                # FIXME
+                assert 0, 'not implemented'
+        return s
 
     def visit_Pipeline(self, node: Pipeline) -> None:
-        # FIXME maybe don't need this function
-        pass
+        assert 0, 'Failed to capture Pipeline in VM.'
 
     def visit_BinaryOp(self, node: BinaryOp) -> None:
         # FIXME

@@ -1,11 +1,6 @@
-from typing import Dict
 from typing import List
 from typing import NoReturn
 from typing import Optional
-from typing import Protocol
-from typing import Type
-
-import pandas as pd  # type: ignore
 
 from tnl.ast import Module
 from tnl.ast import Definition
@@ -31,6 +26,8 @@ from tnl.ast import Number
 from tnl.ast import Pattern
 from tnl.token import Token
 from tnl.token import TokenKind
+from tnl.map_impls import BUILT_IN_FUNCTIONS
+from tnl.map_impls import MAP_IMPL_REGISTRY
 
 
 TRANSFORM = 'transform'
@@ -50,66 +47,7 @@ KEYWORDS = {
     ELSE,
 }
 
-# TODO: perhaps there is be a better way to manage build-in functions
-TRIM = 'trim'
-TITLE = 'title'
-REPLACE = 'replace'
-ADD = 'add'
-MULT = 'mult'
-SQUARE = 'square'
-BUILT_IN_FUNCTIONS = {
-    TRIM,
-    TITLE,
-    REPLACE,
-    ADD,
-    MULT,
-    SQUARE,
-}
-
 RESERVED_NAMES = KEYWORDS | BUILT_IN_FUNCTIONS
-
-
-# TODO turn this into module or something
-#      and protocol for e.g. num_args
-class MapImpl(Protocol):
-    num_args: int
-
-
-# TODO maybe have protocol for header and value maps
-class AddImpl(MapImpl):
-    num_args = 1
-
-    def map_values(self, s: pd.Series, arg1: int) -> pd.Series:
-        return s + arg1
-
-
-class MultImpl(MapImpl):
-    num_args = 1
-
-    def map_values(self, s: pd.Series, arg1: int) -> pd.Series:
-        return s * arg1
-
-
-class ReplaceImpl(MapImpl):
-    num_args = 2
-
-    def map_values(self, s: pd.Series, arg1: str, arg2: str) -> pd.Series:
-        return s.replace(arg1, arg2)
-
-
-class TrimImpl(MapImpl):
-    num_args = 0
-
-    def map_values(self, s: pd.Series) -> pd.Series:
-        return s.str.strip()
-
-
-MAP_IMPL_REGISTRY: Dict[str, Type[MapImpl]] = {
-    ADD: AddImpl,
-    MULT: MultImpl,
-    REPLACE: ReplaceImpl,
-    TRIM: TrimImpl,
-}
 
 
 class Parser:
