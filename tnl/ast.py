@@ -1,6 +1,7 @@
 from typing import Literal as TypeLiteral
 from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import Union
 
 
@@ -106,7 +107,7 @@ class Conditional(Operation):
 
 
 class Map(Operation):
-    def __init__(self, name: 'Name', args: List['RValue']) -> None:
+    def __init__(self, name: 'Name', args: Tuple['RValue', ...]) -> None:
         self.name = name
         self.args = args
 

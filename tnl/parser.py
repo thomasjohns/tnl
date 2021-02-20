@@ -314,11 +314,11 @@ class Parser:
         if name.data not in MAP_IMPL_REGISTRY:
             self.error(f'Unrecognized map \'{name}\'.')
         map_impl = MAP_IMPL_REGISTRY[name.data]
-        args: List[RValue] = []
+        args_list: List[RValue] = []
         for _ in range(map_impl.num_args):
             arg = self.parse_rvalue()
-            args.append(arg)
-        return Map(name, args)
+            args_list.append(arg)
+        return Map(name, tuple(args_list))
 
     def parse_rvalue(self) -> RValue:
         rvalue: RValue

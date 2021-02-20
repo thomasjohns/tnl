@@ -20,7 +20,8 @@ from tnl.ast import Name
 from tnl.ast import String
 from tnl.ast import Number
 from tnl.ast import Pattern
-from tnl.map_impls import MAP_IMPL_REGISTRY
+from tnl.map_impls import MAP_VALUES_IMPL_REGISTRY
+from tnl.map_impls import MAP_STRING_IMPL_REGISTRY
 
 
 def transform(ast: Module, data: pd.DataFrame) -> pd.DataFrame:
@@ -95,15 +96,8 @@ class VM:
             if isinstance(operation, String):
                 s = operation.data
             elif isinstance(operation, Map):
-                map_impl = MAP_IMPL_REGISTRY[operation.name.data]
-                if hasattr(map_impl, 'map_string'):
-                    s = map_impl.map_string(s, *operation.args)
-                else:
-                    message = (
-                        'missed static analysis check for map '
-                        f'{operation.name.data}'
-                    )
-                    assert 0, message
+                map_impl = MAP_STRING_IMPL_REGISTRY[operation.name.data]
+                s = map_impl.map_string(s, *operation.args)  # type: ignore
             else:
                 # FIXME
                 assert 0, 'not implemented'
@@ -119,15 +113,8 @@ class VM:
             elif isinstance(operation, Number):
                 s = pd.Series(operation.data for _ in range(len(self.data)))
             elif isinstance(operation, Map):
-                map_impl = MAP_IMPL_REGISTRY[operation.name.data]
-                if hasattr(map_impl, 'map_values'):
-                    s = map_impl.map_values(s, *operation.args)
-                else:
-                    message = (
-                        'missed static analysis check for map '
-                        f'{operation.name.data}'
-                    )
-                    assert 0, message
+                map_impl = MAP_VALUES_IMPL_REGISTRY[operation.name.data]
+                s = map_impl.map_values(s, *operation.args)  # type: ignore
             else:
                 # FIXME
                 assert 0, 'not implemented'

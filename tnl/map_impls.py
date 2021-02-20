@@ -6,7 +6,9 @@ from tnl.ast import Number
 from tnl.ast import String
 
 
-# FIXME: need a better way to represent types
+# TODO: is there a better way to represent types here?
+#       we currently have some `# type: ignore` comments
+#       elsewhere (at least in `tnl/vm.py`).
 
 
 class MapImpl(Protocol):
@@ -53,13 +55,16 @@ class TrimImpl(MapImpl):
         return s.strip()
 
 
-MAP_IMPL_REGISTRY = {
+MAP_VALUES_IMPL_REGISTRY = {
     'add': AddImpl,
     'mult': MultImpl,
-    # 'square': SquareImpl,  # FIXME
     'replace': ReplaceImpl,
     'trim': TrimImpl,
-    # 'title': TitleImpl,  # FIXME
 }
+MAP_STRING_IMPL_REGISTRY = {
+    'replace': ReplaceImpl,
+    'trim': TrimImpl,
+}
+MAP_IMPL_REGISTRY = {**MAP_VALUES_IMPL_REGISTRY, **MAP_STRING_IMPL_REGISTRY}
 
 BUILT_IN_FUNCTIONS = set(MAP_IMPL_REGISTRY.keys())
