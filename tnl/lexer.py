@@ -119,21 +119,21 @@ class Lexer:
 
     def lex_number(self) -> None:
         initial_loc = self.pos.loc
-        value = ''
-        while self.cur_char.isdigit():
-            value += self.cur_char
+        value = str(self.cur_char)
+        while self.next_char.isdigit():
+            value += self.next_char
             self.eat()
         self.tokens.append(Token(TokenKind.NUMBER, value, initial_loc))
 
     def lex_name(self) -> None:
         initial_loc = self.pos.loc
-        value = ''
+        value = self.cur_char
         while (
-            self.cur_char == '_' or
-            self.cur_char.isalpha() or
-            self.cur_char.isdigit()
+            self.next_char == '_' or
+            self.next_char.isalpha() or
+            self.next_char.isdigit()
         ):
-            value += self.cur_char
+            value += self.next_char
             self.eat()
         self.tokens.append(Token(TokenKind.NAME, value, initial_loc))
 
