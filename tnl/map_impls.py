@@ -1,4 +1,7 @@
+from typing import Callable
+from typing import Dict
 from typing import Protocol
+from typing import Type
 
 import pandas as pd  # type: ignore
 
@@ -11,10 +14,25 @@ from tnl.ast import String
 #       elsewhere (at least in `tnl/vm.py`).
 
 
+MAP_VALUES_IMPL_REGISTRY: Dict[str, Type['MapImpl']] = {}
+MAP_STRING_IMPL_REGISTRY: Dict[str, Type['MapImpl']] = {}
+
+
+def register_impl(map_name: str) -> Callable[['Type[MapImpl]'], None]:
+    def wrapper(cls: 'Type[MapImpl]') -> None:
+        if hasattr(cls, 'map_values'):
+            MAP_VALUES_IMPL_REGISTRY[map_name] = cls
+        if hasattr(cls, 'map_string'):
+            MAP_STRING_IMPL_REGISTRY[map_name] = cls
+
+    return wrapper
+
+
 class MapImpl(Protocol):
     num_args: int
 
 
+@register_impl(map_name='add')
 class AddImpl(MapImpl):
     num_args = 1
 
@@ -24,12 +42,13 @@ class AddImpl(MapImpl):
 
     # TODO: this is an example - add others later when we get
     #       to code generation
-    @staticmethod
-    def gen_map_values(series_ref: str, *args: Number) -> str:
-        # think this will just generate code for right hand side
-        return f'({series_ref} + 1)'
+    # @staticmethod
+    # def gen_map_values(series_ref: str, *args: Number) -> str:
+    #     # think this will just generate code for right hand side
+    #     return f'({series_ref} + 1)'
 
 
+@register_impl(map_name='mult')
 class MultImpl(MapImpl):
     num_args = 1
 
@@ -38,6 +57,7 @@ class MultImpl(MapImpl):
         return s * args[0].data
 
 
+@register_impl(map_name='replace')
 class ReplaceImpl(MapImpl):
     num_args = 2
 
@@ -50,6 +70,7 @@ class ReplaceImpl(MapImpl):
         return s.replace(args[0].data, args[1].data)
 
 
+@register_impl(map_name='trim')
 class TrimImpl(MapImpl):
     num_args = 0
 
@@ -62,16 +83,5 @@ class TrimImpl(MapImpl):
         return s.strip()
 
 
-MAP_VALUES_IMPL_REGISTRY = {
-    'add': AddImpl,
-    'mult': MultImpl,
-    'replace': ReplaceImpl,
-    'trim': TrimImpl,
-}
-MAP_STRING_IMPL_REGISTRY = {
-    'replace': ReplaceImpl,
-    'trim': TrimImpl,
-}
 MAP_IMPL_REGISTRY = {**MAP_VALUES_IMPL_REGISTRY, **MAP_STRING_IMPL_REGISTRY}
-
 BUILT_IN_FUNCTIONS = set(MAP_IMPL_REGISTRY.keys())
