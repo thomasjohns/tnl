@@ -67,6 +67,32 @@ Idx,Year
         ''',
         id='slice',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        'idx' -> title
+        'message' -> title
+    }
+    values {
+        ['Message'] -> title
+    }
+}
+        ''',
+        '''\
+idx,message
+1,hello world
+2,hello mars
+3,hello andromeda
+        ''',
+        '''\
+Idx,Message
+1,Hello World
+2,Hello Mars
+3,Hello Andromeda
+        ''',
+        id='title',
+    ),
 ])
 def test_interpret(
     src: str,

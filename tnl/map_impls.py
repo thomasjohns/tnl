@@ -96,5 +96,18 @@ class SliceImpl(MapImpl):
         return s[args[0].data:args[1].data]
 
 
+@register_impl(map_name='title')
+class TitleImpl(MapImpl):
+    num_args = 0
+
+    @staticmethod
+    def map_values(s: pd.Series) -> pd.Series:
+        return s.str.title()
+
+    @staticmethod
+    def map_string(s: str) -> str:
+        return s.title()
+
+
 MAP_IMPL_REGISTRY = {**MAP_VALUES_IMPL_REGISTRY, **MAP_STRING_IMPL_REGISTRY}
 BUILT_IN_FUNCTIONS = set(MAP_IMPL_REGISTRY.keys())
