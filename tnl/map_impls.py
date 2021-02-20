@@ -22,6 +22,13 @@ class AddImpl(MapImpl):
     def map_values(s: pd.Series, *args: Number) -> pd.Series:
         return s + args[0].data
 
+    # TODO: this is an example - add others later when we get
+    #       to code generation
+    @staticmethod
+    def gen_map_values(series_ref: str, *args: Number) -> str:
+        # think this will just generate code for right hand side
+        return f'({series_ref} + 1)'
+
 
 class MultImpl(MapImpl):
     num_args = 1
