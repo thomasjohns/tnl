@@ -83,5 +83,18 @@ class TrimImpl(MapImpl):
         return s.strip()
 
 
+@register_impl(map_name='slice')
+class SliceImpl(MapImpl):
+    num_args = 2
+
+    @staticmethod
+    def map_values(s: pd.Series, *args: Number) -> pd.Series:
+        return s.str.slice(start=args[0].data, stop=args[1].data)
+
+    @staticmethod
+    def map_string(s: str, *args: Number) -> str:
+        return s[args[0].data:args[1].data]
+
+
 MAP_IMPL_REGISTRY = {**MAP_VALUES_IMPL_REGISTRY, **MAP_STRING_IMPL_REGISTRY}
 BUILT_IN_FUNCTIONS = set(MAP_IMPL_REGISTRY.keys())

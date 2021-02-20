@@ -6,7 +6,8 @@ from tnl.code_printer import print_module_code
 
 
 @pytest.mark.parametrize('src', [
-    """
+    pytest.param(
+        '''
 transform Test {
     headers {
         'a' -> 'AA'
@@ -25,7 +26,23 @@ transform Test {
         }
     }
 }
-    """,
+        ''',
+        id='parse_integration_test_1',
+    ),
+    pytest.param(
+        '''
+transform Test {
+    headers {
+        'idx' -> 'Idx'
+        'Year-Month-Day' -> slice 0 4
+    }
+    values {
+        'Year' -> slice 0 4
+    }
+}
+        ''',
+        id='parse_integration_test_2',
+    ),
 ])
 def test_pretty_print_code(capsys, src):
     """

@@ -9,7 +9,7 @@ from tnl.vm import transform
 
 
 @pytest.mark.parametrize('src,input_data_str,expected_result_data_str', [
-    (
+    pytest.param(
         '''\
 transform Test {
     headers {
@@ -39,6 +39,33 @@ DD,BB,CC
 4,999,Hello World
 4,999,hello world
         ''',
+        id='interpret_integration_test_1',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        'idx' -> 'Idx'
+        'Year-Month-Day' -> slice 0 4
+    }
+    values {
+        ['Year'] -> slice 0 4
+    }
+}
+        ''',
+        '''\
+idx,Year-Month-Day
+1,2020-01-01
+2,2019-02-15
+3,2017-08-02
+        ''',
+        '''\
+Idx,Year
+1,2020
+2,2019
+3,2017
+        ''',
+        id='slice',
     ),
 ])
 def test_interpret(
