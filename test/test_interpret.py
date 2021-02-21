@@ -43,6 +43,42 @@ DD,BB,CC
     ),
     pytest.param(
         '''\
+transform Movies {
+    headers {
+        'date' -> 'Year'
+        'name' -> 'Title'
+        'producer' -> 'Producer(s)'
+    }
+
+    values {
+        ['Year'] -> slice 0 4
+        ['Title'] -> trim | title | replace 'Of' 'of'
+        ['Producer(s)'] -> {
+            | trim
+            | replace ';' ','
+            | replace_last ',' ', and'
+        }
+    }
+}
+        ''',
+        '''\
+date,name,producer
+2019-10-5, parasite ,Kwak Sin-ae; Bong Joon-ho
+2018-09-11, green book ,Jim Burke; Charles B. Wessler; Brian Currie; Peter Farrelly; Nick Vallelonga
+2017-08-31, the shape of water ,Guillermo del Toro; J. Miles Dale
+2016-09-02, moonlight ,Adele Romanski; Dede Gardner; Jeremy Kleiner
+        ''',
+        '''\
+Year,Title,Producer(s)
+2019,Parasite,"Kwak Sin-ae, and Bong Joon-ho"
+2018,Green Book,"Jim Burke, Charles B. Wessler, Brian Currie, Peter Farrelly, and Nick Vallelonga"
+2017,The Shape of Water,"Guillermo del Toro, and J. Miles Dale"
+2016,Moonlight,"Adele Romanski, Dede Gardner, and Jeremy Kleiner"
+        ''',
+        id='interpret_integration_test_example_from_readme',
+    ),
+    pytest.param(
+        '''\
 transform Test {
     headers {
         'idx' -> 'Idx'

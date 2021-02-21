@@ -21,7 +21,7 @@ transform Movies {
 
     values {
         ['Year'] -> slice 0 4
-        ['Title'] -> trim | title
+        ['Title'] -> trim | title | replace 'Of' 'of'
         ['Producer(s)'] -> {
             | trim
             | replace ';' ','
