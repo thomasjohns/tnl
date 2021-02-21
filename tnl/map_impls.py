@@ -70,6 +70,26 @@ class ReplaceImpl(MapImpl):
         return s.replace(args[0].data, args[1].data)
 
 
+@register_impl(map_name='replace_last')
+class ReplaceLastImpl(MapImpl):
+    num_args = 2
+
+    @staticmethod
+    def _replace_last_in_str(s: str, from_str: str, to_str: str) -> str:
+        l = s.rsplit(from_str, 1)
+        return to_str.join(l)
+
+    @classmethod
+    def map_values(cls, s: pd.Series, *args: String) -> pd.Series:
+        return s.apply(
+            lambda x: cls._replace_last_in_str(x, args[0].data, args[1].data)
+        )
+
+    @classmethod
+    def map_string(cls, s: str, *args: String) -> str:
+        return cls._replace_last_in_str(s, args[0].data, args[1].data)
+
+
 @register_impl(map_name='trim')
 class TrimImpl(MapImpl):
     num_args = 0

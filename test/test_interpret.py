@@ -93,6 +93,32 @@ Idx,Message
         ''',
         id='title',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        'a;b;c' -> {
+            | replace ';' '; '
+            | replace_last '; ' '; and '
+        }
+    }
+    values {
+        ['a; b; and c'] -> replace_last 'a' 'b'
+    }
+}
+        ''',
+        '''\
+idx,a;b;c
+1,aaaabac
+2,aabc
+        ''',
+        '''\
+idx,a; b; and c
+1,aaaabbc
+2,abbc
+        ''',
+        id='replace_last',
+    ),
 ])
 def test_interpret(
     src: str,
