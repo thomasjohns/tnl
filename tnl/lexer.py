@@ -1,5 +1,6 @@
 from typing import List
 from typing import NoReturn
+from typing import Optional
 
 from tnl.token import Position
 from tnl.token import Token
@@ -44,6 +45,13 @@ class Lexer:
         else:
             self.error('Unexpected end of file.')
 
+    @property
+    def prev_token_kind(self) -> Optional[TokenKind]:
+        if self.tokens:
+            return self.tokens[-1].kind
+        else:
+            return None
+
     def lex(self) -> List[Token]:
         self.tokens = []
         self.eat()
@@ -81,7 +89,7 @@ class Lexer:
             elif self.cur_char == '*':
                 self.tokens.append(Token(TokenKind.MULT, '*', self.pos.loc))
             elif self.cur_char == '/':
-                self.tokens.append(Token(TokenKind.DIV, '/', self.pos.loc))
+                self.lex_pattern_or_div()
             elif self.cur_char == '+':
                 self.tokens.append(Token(TokenKind.ADD, '+', self.pos.loc))
             elif self.cur_char == '%':
@@ -96,8 +104,6 @@ class Lexer:
                 self.lex_name()
             elif self.cur_char.isdigit():
                 self.lex_number()
-            elif self.cur_char == '/':
-                self.lex_pattern()
             elif self.cur_char == '#':
                 self.lex_comment()
             elif self.cur_char == '-':
@@ -151,11 +157,43 @@ class Lexer:
             self.eat()
         self.tokens.append(Token(TokenKind.STRING, value, initial_loc))
 
+    def _get_next_non_space_char(self) -> Optional[str]:
+        idx = self.src_index + 1
+        while idx < len(self.src):
+            if (c := self.src[idx]) != ' ':
+                return c
+            idx = idx + 1
+        return None
+
+    def lex_pattern_or_div(self) -> None:
+        """ Heuristic for differentiating DIV from PATTERN. """
+        before_could_be_div = (
+            self.prev_token_kind is not None and (
+                self.prev_token_kind == TokenKind.NUMBER or
+                self.prev_token_kind == TokenKind.RBRACE or
+                self.prev_token_kind == TokenKind.STRING or
+                self.prev_token_kind == TokenKind.NAME
+            )
+        )
+        next_non_space_char = self._get_next_non_space_char()
+        after_could_be_div = (
+            next_non_space_char is not None and (
+                next_non_space_char.isalpha() or
+                next_non_space_char.isdigit() or
+                next_non_space_char == '['
+            )
+        )
+        if before_could_be_div and after_could_be_div:
+            self.tokens.append(Token(TokenKind.DIV, '/', self.pos.loc))
+        else:
+            self.lex_pattern()
+
     def lex_pattern(self) -> None:
         initial_loc = self.pos.loc
+        self.eat()
         value = ''
         escaping = False
-        while not escaping and self.cur_char != '/':
+        while self.cur_char != '/' or escaping:
             if self.cur_char == '\\':
                 escaping = True
             else:
@@ -173,7 +211,7 @@ class Lexer:
         initial_loc = self.pos.loc
         if self.next_char == '>':
             self.eat()
-            value = f'-{self.cur_char}'
+            value = '->'
             self.tokens.append(Token(TokenKind.ARROW, value, initial_loc))
         else:
             self.tokens.append(Token(TokenKind.SUB, '-', initial_loc))
