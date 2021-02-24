@@ -216,6 +216,26 @@ a,B,c,D
         ''',
         id='header_pattern_3',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        [/upp*./] -> upper
+    }
+}
+        ''',
+        '''\
+lower,upper
+hello,world
+hello,mars
+        ''',
+        '''\
+lower,upper
+hello,WORLD
+hello,MARS
+        ''',
+        id='values_pattern',
+    ),
 ])
 def test_interpret(
     src: str,
