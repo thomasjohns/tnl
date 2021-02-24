@@ -196,9 +196,10 @@ class Lexer:
         while self.cur_char != '/' or escaping:
             if self.cur_char == '\\':
                 escaping = True
+                value += '\\'
             else:
                 escaping = False
-            value += self.cur_char
+                value += self.cur_char
             self.eat()
         self.tokens.append(Token(TokenKind.PATTERN, value, initial_loc))
 

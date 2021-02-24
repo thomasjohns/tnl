@@ -155,6 +155,67 @@ idx,a; b; and c
         ''',
         id='replace_last',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        /(\s+.*)|(.*\s+)/ -> trim
+    }
+}
+        ''',
+        '''\
+ a , b , c,d
+1,2,3,4
+5,6,7,8
+        ''',
+        '''\
+a,b,c,d
+1,2,3,4
+5,6,7,8
+        ''',
+        id='header_pattern_1',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        /b|d/ -> upper
+    }
+}
+        ''',
+        '''\
+a,b,c,d
+1,2,3,4
+5,6,7,8
+        ''',
+        '''\
+a,B,c,D
+1,2,3,4
+5,6,7,8
+        ''',
+        id='header_pattern_2',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        /.*/ -> trim
+        /b|d/ -> upper
+    }
+}
+        ''',
+        '''\
+a, b   , c, d
+1,2,3,4
+5,6,7,8
+        ''',
+        '''\
+a,B,c,D
+1,2,3,4
+5,6,7,8
+        ''',
+        id='header_pattern_3',
+    ),
 ])
 def test_interpret(
     src: str,
