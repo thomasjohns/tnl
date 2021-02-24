@@ -144,9 +144,9 @@ class Number(Literal):
 class Pattern(Literal):
     def __init__(self, data: str) -> None:
         self.data = data
-        self._compiled_pattern: Optional[re.Pattern] = None
+        self._compiled_pattern: Optional[re.Pattern[str]] = None
 
-    def get_compiled_pattern(self) -> re.Pattern:
+    def get_compiled_pattern(self) -> re.Pattern[str]:
         if self._compiled_pattern is None:
             self._compiled_pattern = re.compile(self.data)
         return self._compiled_pattern

@@ -76,8 +76,8 @@ class ReplaceLastImpl(MapImpl):
 
     @staticmethod
     def _replace_last_in_str(s: str, from_str: str, to_str: str) -> str:
-        l = s.rsplit(from_str, 1)
-        return to_str.join(l)
+        last = s.rsplit(from_str, 1)
+        return to_str.join(last)
 
     @classmethod
     def map_values(cls, s: pd.Series, *args: String) -> pd.Series:

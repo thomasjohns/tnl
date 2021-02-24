@@ -47,11 +47,21 @@ transform Test {
         '''\
 transform Test {
     headers {
-        /(\s+.*)|(.*\s+)/ -> trim
+        /(\\s+.*)|(.*\\s+)/ -> trim
     }
 }
         ''',
         id='parse_header_pattern',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        [/upp*./] -> upper
+    }
+}
+        ''',
+        id='parse_values_pattern',
     ),
 ])
 def test_pretty_print_code(capsys, src):

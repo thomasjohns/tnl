@@ -1,3 +1,5 @@
+from typing import List
+
 import pandas as pd  # type: ignore
 
 from tnl.ast import ASTNode
@@ -73,7 +75,7 @@ class VM:
 
     def visit_HeaderRule(self, node: HeaderRule) -> None:
         # TODO handle name later (look up var in symbol table
-        strs_to_map = []
+        strs_to_map: List[str] = []
         if isinstance(node.header, String):
             strs_to_map = [node.header.data]
         elif isinstance(node.header, Pattern):
@@ -88,16 +90,34 @@ class VM:
             self.data = self.data.rename(columns={from_str: to_str})
 
     def visit_ValueRule(self, node: ValueRule) -> None:
-        # TODO handle pattern later
         # TODO handle name later (look up in symbol table
-        assert isinstance(node.rvalue, ColumnSelector)
-        # TODO: consider copy perf later
+        cols_to_map: List[str] = []
+        if isinstance(node.rvalue, ColumnSelector):
+            if (
+                isinstance(node.rvalue.header, String) and
+                node.rvalue.header.data in self.data.columns
+            ):
+                cols_to_map = [node.rvalue.header.data]
+            elif isinstance(node.rvalue.header, Pattern):
+                cp = node.rvalue.header.get_compiled_pattern()
+                for col in self.data.columns:
+                    if cp.match(col):
+                        cols_to_map.append(col)
+            else:
+                assert 0, f'{type(node)} not supported yet in column selector'
+        else:
+            assert 0, f'{type(node)} not supported yet'
+
         # TODO: we may want to provide a way for user to learn that
         #       their rule didn't apply to any header
-        if node.rvalue.header.data in self.data.columns:
-            s_before = self.data[node.rvalue.header.data].copy()
-            s_after = self.exec_values_pipeline(node.pipeline, s_before)
-            self.data[node.rvalue.header.data] = s_after
+        for col in cols_to_map:
+            # TODO: consider copy perf later
+            series_before = self.data[col].copy()
+            series_after = self.exec_values_pipeline(
+                node.pipeline,
+                series_before,
+            )
+            self.data[col] = series_after
 
     def exec_string_pipeline(self, node: Pipeline, s: str) -> str:
         for operation in node.operations:
@@ -108,7 +128,7 @@ class VM:
                 s = map_impl.map_string(s, *operation.args)  # type: ignore
             else:
                 # FIXME
-                assert 0, f'not implemented'
+                assert 0, 'not implemented'
         return s
 
     def exec_values_pipeline(self, node: Pipeline, s: pd.Series) -> pd.Series:
