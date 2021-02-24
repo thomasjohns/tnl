@@ -43,6 +43,16 @@ transform Test {
         ''',
         id='parse_integration_test_2',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        /(\s+.*)|(.*\s+)/ -> trim
+    }
+}
+        ''',
+        id='parse_header_pattern',
+    ),
 ])
 def test_pretty_print_code(capsys, src):
     """

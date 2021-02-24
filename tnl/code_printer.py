@@ -176,5 +176,4 @@ class CodePrinter:
         print(node.data, end='')
 
     def visit_Pattern(self, node: Pattern) -> None:
-        # TODO
-        pass
+        print(f'/{node.data}/', end='')

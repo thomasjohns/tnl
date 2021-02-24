@@ -148,7 +148,7 @@ class Lexer:
         self.eat()
         value = ''
         escaping = False
-        while not escaping and self.cur_char != '\'':
+        while self.cur_char != '\'' or escaping:
             if self.cur_char == '\\':
                 escaping = True
             else:
@@ -197,8 +197,8 @@ class Lexer:
             if self.cur_char == '\\':
                 escaping = True
             else:
-                value += self.cur_char
                 escaping = False
+            value += self.cur_char
             self.eat()
         self.tokens.append(Token(TokenKind.PATTERN, value, initial_loc))
 
