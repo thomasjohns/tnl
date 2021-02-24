@@ -239,5 +239,4 @@ class ASTPrinter:
         print(f'Number(data=\'{node.data}\')', end='')
 
     def visit_Pattern(self, node: Pattern) -> None:
-        # TODO
-        pass
+        print(f'Pattern(data=\'{node.data}\')', end='')
