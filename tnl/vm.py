@@ -72,12 +72,20 @@ class VM:
         pass
 
     def visit_HeaderRule(self, node: HeaderRule) -> None:
-        # TODO handle pattern later
-        # TODO handle name later (look up in symbol table
-        assert isinstance(node.header, String)
-        from_str = node.header.data
-        to_str = self.exec_string_pipeline(node.pipeline, from_str)
-        self.data = self.data.rename(columns={from_str: to_str})
+        # TODO handle name later (look up var in symbol table
+        strs_to_map = []
+        if isinstance(node.header, String):
+            strs_to_map = [node.header.data]
+        elif isinstance(node.header, Pattern):
+            cp = node.header.get_compiled_pattern()
+            for col in self.data.columns:
+                if cp.match(col):
+                    strs_to_map.append(col)
+        else:
+            assert 0, f'{type(node)} not supported yet'
+        for from_str in strs_to_map:
+            to_str = self.exec_string_pipeline(node.pipeline, from_str)
+            self.data = self.data.rename(columns={from_str: to_str})
 
     def visit_ValueRule(self, node: ValueRule) -> None:
         # TODO handle pattern later
@@ -100,7 +108,7 @@ class VM:
                 s = map_impl.map_string(s, *operation.args)  # type: ignore
             else:
                 # FIXME
-                assert 0, 'not implemented'
+                assert 0, f'not implemented'
         return s
 
     def exec_values_pipeline(self, node: Pipeline, s: pd.Series) -> pd.Series:

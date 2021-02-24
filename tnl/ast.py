@@ -1,3 +1,4 @@
+import re
 from typing import Literal as TypeLiteral
 from typing import List
 from typing import Optional
@@ -143,3 +144,9 @@ class Number(Literal):
 class Pattern(Literal):
     def __init__(self, data: str) -> None:
         self.data = data
+        self._compiled_pattern: Optional[re.Pattern] = None
+
+    def get_compiled_pattern(self) -> re.Pattern:
+        if self._compiled_pattern is None:
+            self._compiled_pattern = re.compile(self.data)
+        return self._compiled_pattern
