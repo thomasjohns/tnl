@@ -47,7 +47,7 @@ transform Test {
         '''\
 transform Test {
     headers {
-        /(\s+.*)|(.*\s+)/ -> trim
+        /(\\s+.*)|(.*\\s+)/ -> trim
     }
 }
         ''',
