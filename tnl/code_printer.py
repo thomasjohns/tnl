@@ -1,4 +1,3 @@
-from tnl.ast import ASTNode
 from tnl.ast import Module
 from tnl.ast import Transform
 from tnl.ast import Test
@@ -18,6 +17,7 @@ from tnl.ast import Name
 from tnl.ast import String
 from tnl.ast import Number
 from tnl.ast import Pattern
+from tnl.ast_visitor import ASTVisitor
 
 
 def print_module_code(ast: Module, indent_spaces: int = 4) -> None:
@@ -25,7 +25,7 @@ def print_module_code(ast: Module, indent_spaces: int = 4) -> None:
     ast_printer.visit(ast)
 
 
-class CodePrinter:
+class CodePrinter(ASTVisitor):
     def __init__(self, indent_spaces: int) -> None:
         self.indent_spaces = indent_spaces
         self.cur_indent_spaces = 0
@@ -39,11 +39,6 @@ class CodePrinter:
     def indenting_print(self, message: str = '', end: str = '\n') -> None:
         print(' ' * self.cur_indent_spaces, end='')
         print(message, end=end)
-
-    def visit(self, node: ASTNode) -> None:
-        node_type = node.__class__.__name__
-        node_visit = f'visit_{node_type}'
-        getattr(self, node_visit)(node)
 
     def visit_Module(self, node: Module) -> None:
         for definition in node.definitions:
