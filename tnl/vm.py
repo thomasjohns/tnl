@@ -2,7 +2,6 @@ from typing import List
 
 import pandas as pd  # type: ignore
 
-from tnl.ast import ASTNode
 from tnl.ast import Module
 from tnl.ast import Transform
 from tnl.ast import Test
@@ -22,6 +21,7 @@ from tnl.ast import Name
 from tnl.ast import String
 from tnl.ast import Number
 from tnl.ast import Pattern
+from tnl.ast_visitor import ASTVisitor
 from tnl.map_impls import MAP_VALUES_IMPL_REGISTRY
 from tnl.map_impls import MAP_STRING_IMPL_REGISTRY
 
@@ -32,17 +32,12 @@ def transform(ast: Module, data: pd.DataFrame) -> pd.DataFrame:
     return vm.data
 
 
-class VM:
+class VM(ASTVisitor):
     def __init__(self, data: pd.DataFrame) -> None:
         self.data = data
 
     def execute(self, node: Module) -> None:
         self.visit(node)
-
-    def visit(self, node: ASTNode) -> None:
-        node_type = node.__class__.__name__
-        node_visit = f'visit_{node_type}'
-        getattr(self, node_visit)(node)
 
     def visit_Module(self, node: Module) -> None:
         for definition in node.definitions:
@@ -175,7 +170,7 @@ class VM:
         # FIXME
         pass
 
-    def visit_String(self, node: String) -> str:
+    def visit_String(self, node: String) -> None:
         # FIXME
         pass
 
