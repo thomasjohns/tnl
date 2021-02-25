@@ -159,6 +159,29 @@ idx,a; b; and c
         '''\
 transform Test {
     headers {
+        'planet' -> format '{} greeting'
+    }
+    values {
+        [/.*planet.*/] -> format 'hello {}'
+    }
+}
+        ''',
+        '''\
+idx,planet
+1,earth
+2,mars
+        ''',
+        '''\
+idx,planet greeting
+1,hello earth
+2,hello mars
+        ''',
+        id='format',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
         /(\\s+.*)|(.*\\s+)/ -> trim
     }
 }
