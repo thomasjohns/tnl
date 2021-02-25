@@ -88,11 +88,9 @@ class VM(ASTVisitor):
         # TODO handle name later (look up in symbol table
         cols_to_map: List[str] = []
         if isinstance(node.rvalue, ColumnSelector):
-            if (
-                isinstance(node.rvalue.header, String) and
-                node.rvalue.header.data in self.data.columns
-            ):
-                cols_to_map = [node.rvalue.header.data]
+            if isinstance(node.rvalue.header, String):
+                if node.rvalue.header.data in self.data.columns:
+                    cols_to_map = [node.rvalue.header.data]
             elif isinstance(node.rvalue.header, Pattern):
                 cp = node.rvalue.header.get_compiled_pattern()
                 for col in self.data.columns:

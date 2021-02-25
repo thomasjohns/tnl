@@ -142,5 +142,18 @@ class UpperImpl(MapImpl):
         return s.upper()
 
 
+@register_impl(map_name='format')
+class FormatImpl(MapImpl):
+    num_args = 1
+
+    @staticmethod
+    def map_values(s: pd.Series, *args: String) -> pd.Series:
+        return s.apply(lambda x: args[0].data.format(x))
+
+    @staticmethod
+    def map_string(s: str, *args: String) -> str:
+        return args[0].data.format(s)
+
+
 MAP_IMPL_REGISTRY = {**MAP_VALUES_IMPL_REGISTRY, **MAP_STRING_IMPL_REGISTRY}
 BUILT_IN_FUNCTIONS = set(MAP_IMPL_REGISTRY.keys())
