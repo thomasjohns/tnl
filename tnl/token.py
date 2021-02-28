@@ -23,6 +23,8 @@ class TokenKind(Enum):
     NOT = '!'
     NEWLINE = '\n'
     NAME = auto()
+    TRUE = 'True'
+    FALSE = 'False'
     STRING = auto()
     NUMBER = auto()
     PATTERN = auto()

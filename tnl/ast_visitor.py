@@ -18,6 +18,7 @@ from tnl.ast import Name
 from tnl.ast import String
 from tnl.ast import Number
 from tnl.ast import Pattern
+from tnl.ast import Boolean
 
 
 class ASTVisitor:
@@ -98,4 +99,7 @@ class ASTVisitor:
         pass
 
     def visit_Pattern(self, node: Pattern) -> None:
+        pass
+
+    def visit_Boolean(self, node: Boolean) -> None:
         pass

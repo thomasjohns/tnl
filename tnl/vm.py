@@ -21,6 +21,7 @@ from tnl.ast import Name
 from tnl.ast import String
 from tnl.ast import Number
 from tnl.ast import Pattern
+from tnl.ast import Boolean
 from tnl.ast_visitor import ASTVisitor
 from tnl.map_impls import MAP_VALUES_IMPL_REGISTRY
 from tnl.map_impls import MAP_STRING_IMPL_REGISTRY
@@ -133,6 +134,8 @@ class VM(ASTVisitor):
                 s = pd.Series(operation.data for _ in range(len(self.data)))
             elif isinstance(operation, Number):
                 s = pd.Series(operation.data for _ in range(len(self.data)))
+            elif isinstance(operation, Boolean):
+                s = pd.Series(operation.data for _ in range(len(self.data)))
             elif isinstance(operation, Map):
                 map_impl = MAP_VALUES_IMPL_REGISTRY[operation.name.data]
                 s = map_impl.map_values(s, *operation.args)  # type: ignore
@@ -177,5 +180,9 @@ class VM(ASTVisitor):
         pass
 
     def visit_Pattern(self, node: Pattern) -> None:
+        # TODO
+        pass
+
+    def visit_Boolean(self, node: Boolean) -> None:
         # TODO
         pass

@@ -141,7 +141,13 @@ class Lexer:
         ):
             value += self.next_char
             self.eat()
-        self.tokens.append(Token(TokenKind.NAME, value, initial_loc))
+        if value == 'True':
+            kind = TokenKind.TRUE
+        elif value == 'False':
+            kind = TokenKind.FALSE
+        else:
+            kind = TokenKind.NAME
+        self.tokens.append(Token(kind, value, initial_loc))
 
     def lex_string(self) -> None:
         initial_loc = self.pos.loc

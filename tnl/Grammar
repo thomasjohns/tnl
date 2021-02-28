@@ -38,4 +38,4 @@ unary_expr: ('-' | '!') expr
 rvalue: NAME | literal | column_selector
 column_selector: '[' header ']'
 header: STRING | NAME | PATTERN
-literal: STRING | NUMBER | PATTERN
+literal: STRING | NUMBER | PATTERN | BOOLEAN

@@ -150,3 +150,8 @@ class Pattern(Literal):
         if self._compiled_pattern is None:
             self._compiled_pattern = re.compile(self.data)
         return self._compiled_pattern
+
+
+class Boolean(Literal):
+    def __init__(self, data: bool) -> None:
+        self.data = data
