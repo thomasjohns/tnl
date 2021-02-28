@@ -15,14 +15,17 @@ from tnl.semantic_analyzer import SemanticAnalyzer
     #         '',
     #         id='unrecognized_map',
     #     ),
-    #     pytest.param(
-    #         '''
-    # transform T {
-    # }
-    #         ''',
-    #         '',
-    #         id='invalid_format_string',
-    #     ),
+    pytest.param(
+        '''
+transform T {
+    headers {
+        'hello' -> format ' {planet'
+    }
+}
+        ''',
+        'Invalid format string (expected \'}\' before end of string).',
+        id='invalid_format_string',
+    ),
     pytest.param(
         '''
 transform T {

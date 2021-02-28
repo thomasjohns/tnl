@@ -6,6 +6,7 @@ from typing import Optional
 from tnl.ast import ASTNode
 from tnl.ast import Map
 from tnl.ast import Pattern
+from tnl.ast import String
 from tnl.ast_visitor import ASTVisitor
 from tnl.token import Position
 
@@ -39,8 +40,14 @@ class SemanticAnalyzer(ASTVisitor):
         return self.errors
 
     def visit_Map(self, node: Map) -> None:
-        # TODO make sure format string is well formed
-        pass
+        if node.name.data == 'format':
+            try:
+                rvalue = node.args[0]
+                if isinstance(rvalue, String):
+                    rvalue.data.format('arbitrary string')
+            except ValueError as ve:
+                error = SemanticError(f'Invalid format string ({str(ve)})')
+                self.errors.append(error)
 
     def visit_Pattern(self, node: Pattern) -> None:
         try:
