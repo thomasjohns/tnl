@@ -17,6 +17,7 @@ from tnl.ast import Name
 from tnl.ast import String
 from tnl.ast import Number
 from tnl.ast import Pattern
+from tnl.ast import Boolean
 from tnl.ast_visitor import ASTVisitor
 
 
@@ -235,3 +236,6 @@ class ASTPrinter(ASTVisitor):
 
     def visit_Pattern(self, node: Pattern) -> None:
         print(f'Pattern(data=\'{node.data}\')', end='')
+
+    def visit_Boolean(self, node: Boolean) -> None:
+        print(f'Boolean(data={node.data})', end='')

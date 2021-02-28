@@ -259,6 +259,27 @@ hello,MARS
         ''',
         id='values_pattern',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['a'] -> True
+        ['b'] -> False
+    }
+}
+        ''',
+        '''\
+a,b
+1,2
+3,4
+        ''',
+        '''\
+a,b
+True,False
+True,False
+        ''',
+        id='true_and_false_tokens',
+    ),
 ])
 def test_interpret(
     src: str,

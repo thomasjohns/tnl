@@ -24,6 +24,7 @@ from tnl.ast import Expr
 from tnl.ast import String
 from tnl.ast import Number
 from tnl.ast import Pattern
+from tnl.ast import Boolean
 from tnl.token import Token
 from tnl.token import TokenKind
 from tnl.map_impls import BUILT_IN_FUNCTIONS
@@ -334,6 +335,10 @@ class Parser:
             rvalue = self.parse_number()
         elif self.cur_token.kind == TokenKind.PATTERN:
             rvalue = self.parse_pattern()
+        elif self.cur_token.kind == TokenKind.TRUE:
+            rvalue = self.parse_true()
+        elif self.cur_token.kind == TokenKind.FALSE:
+            rvalue = self.parse_false()
         elif self.cur_token.kind == TokenKind.LBRACE:
             rvalue = self.parse_column_selector()
         else:
@@ -352,6 +357,10 @@ class Parser:
             expr = self.parse_number()
         elif self.cur_token.kind == TokenKind.STRING:
             expr = self.parse_string()
+        elif self.cur_token.kind == TokenKind.TRUE:
+            expr = self.parse_true()
+        elif self.cur_token.kind == TokenKind.FALSE:
+            expr = self.parse_false()
         else:
             # TODO for now assume string or number literal
             assert 0, self.cur_token
@@ -381,6 +390,16 @@ class Parser:
         self.eat()
         data = int(lexeme)
         return Number(data)
+
+    def parse_true(self) -> Boolean:
+        self.expect(TokenKind.TRUE)
+        self.eat()
+        return Boolean(True)
+
+    def parse_false(self) -> Boolean:
+        self.expect(TokenKind.FALSE)
+        self.eat()
+        return Boolean(False)
 
     def parse_column_selector(self) -> ColumnSelector:
         self.expect_and_eat(TokenKind.LBRACE)
