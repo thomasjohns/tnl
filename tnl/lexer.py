@@ -11,7 +11,7 @@ class Lexer:
     def __init__(self, src: str, filename: str) -> None:
         self.src = src
         self.filename = filename
-        self.pos = Position(1, 0)
+        self.pos = Position(filename, 1, 0)
 
         self.tokens: List[Token]
 

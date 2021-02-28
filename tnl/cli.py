@@ -5,9 +5,10 @@ import pandas as pd  # type: ignore
 
 from tnl.lexer import Lexer
 from tnl.parser import Parser
+from tnl.semantic_analyzer import analyze
+from tnl.vm import transform
 from tnl.ast_printer import print_module_ast
 from tnl.code_printer import print_module_code
-from tnl.vm import transform
 
 
 def exec_cli() -> int:
@@ -68,9 +69,17 @@ def exec_cli() -> int:
         print_module_code(ast)
         return 0
 
+    semantic_errors = analyze(ast)
+    if semantic_errors:
+        for error in semantic_errors:
+            print(error)
+        if args.check:
+            return 0
+        else:
+            return 1
+
     if args.check:
-        # TODO: implement static analysis
-        print('`check` does nothing right now.')
+        print('Success: no issues found.')
         return 0
 
     if not os.path.exists(args.data_file):

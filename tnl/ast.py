@@ -146,7 +146,7 @@ class Pattern(Literal):
         self.data = data
         self._compiled_pattern: Optional[re.Pattern[str]] = None
 
-    def get_compiled_pattern(self) -> re.Pattern[str]:
+    def compile(self) -> re.Pattern[str]:
         if self._compiled_pattern is None:
             self._compiled_pattern = re.compile(self.data)
         return self._compiled_pattern
