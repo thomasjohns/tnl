@@ -74,7 +74,7 @@ class VM(ASTVisitor):
         if isinstance(node.header, String):
             strs_to_map = [node.header.data]
         elif isinstance(node.header, Pattern):
-            cp = node.header.get_compiled_pattern()
+            cp = node.header.compile()
             for col in self.data.columns:
                 if cp.match(col):
                     strs_to_map.append(col)
@@ -92,7 +92,7 @@ class VM(ASTVisitor):
                 if node.rvalue.header.data in self.data.columns:
                     cols_to_map = [node.rvalue.header.data]
             elif isinstance(node.rvalue.header, Pattern):
-                cp = node.rvalue.header.get_compiled_pattern()
+                cp = node.rvalue.header.compile()
                 for col in self.data.columns:
                     if cp.match(col):
                         cols_to_map.append(col)

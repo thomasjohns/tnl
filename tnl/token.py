@@ -31,7 +31,8 @@ class TokenKind(Enum):
 
 
 class Position:
-    def __init__(self, line: int, col: int) -> None:
+    def __init__(self, filename: str, line: int, col: int) -> None:
+        self.filename = filename
         self.line = line
         self.col = col
 
