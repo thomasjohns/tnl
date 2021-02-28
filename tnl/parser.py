@@ -58,8 +58,9 @@ class Parser:
         self.token_index = -1
         self.cur_token = Token(TokenKind.INVALID, None, (0, 0))
 
-    def error(self, message: str) -> NoReturn:
-        print('Syntax Error:')
+    def error(self, message: str, is_syntax_error: bool = True) -> NoReturn:
+        if is_syntax_error:
+            print('Syntax Error:')
         print(message)
         print(f'In file {self.filename}.')
         exit(1)
@@ -312,7 +313,10 @@ class Parser:
     def parse_map(self) -> Map:
         name = self.parse_name()
         if name.data not in MAP_IMPL_REGISTRY:
-            self.error(f'Unrecognized map \'{name.data}\'.')
+            self.error(
+                f'Unrecognized map \'{name.data}\'.',
+                is_syntax_error=False,
+            )
         map_impl = MAP_IMPL_REGISTRY[name.data]
         args_list: List[RValue] = []
         for _ in range(map_impl.num_args):

@@ -6,15 +6,17 @@ from tnl.semantic_analyzer import SemanticAnalyzer
 
 
 @pytest.mark.parametrize('src,expected_error_message', [
-    # TODO
-    #     pytest.param(
-    #         '''
-    # transform T {
-    # }
-    #         ''',
-    #         '',
-    #         id='unrecognized_map',
-    #     ),
+    pytest.param(
+        '''
+transform T {
+    headers {
+        'hello' -> hello 'world'
+    }
+}
+        ''',
+        'Unrecognized map \'hello\'.',
+        id='unrecognized_map',
+    ),
     pytest.param(
         '''
 transform T {
@@ -43,13 +45,16 @@ def test_pretty_print_code(capsys, src, expected_error_message):
     lexer = Lexer(src, 'test')
     tokens = lexer.lex()
     parser = Parser(tokens, 'test')
-    ast = parser.parse()
-    analyzer = SemanticAnalyzer(ast)
-    errors = analyzer.analyze()
+    try:
+        ast = parser.parse()
+        analyzer = SemanticAnalyzer(ast)
+        errors = analyzer.analyze()
 
-    assert len(errors) == 1
+        assert len(errors) == 1
 
-    print(errors[0])
+        print(errors[0])
+    except SystemExit:  # this is because the parser currently exits on error
+        pass
 
     captured = capsys.readouterr()
     assert expected_error_message.strip() in captured.out.strip()
