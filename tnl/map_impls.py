@@ -72,6 +72,15 @@ class PowerImpl(MapImpl):
         return s ** args[0].data
 
 
+@register_impl(map_name='divide')
+class DivideImpl(MapImpl):
+    num_args = 1
+
+    @staticmethod
+    def map_values(s: pd.Series, *args: Number) -> pd.Series:
+        return s // args[0].data
+
+
 @register_impl(map_name='replace')
 class ReplaceImpl(MapImpl):
     num_args = 2

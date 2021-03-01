@@ -392,6 +392,26 @@ a,b
         ''',
         id='power',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['b'] -> divide 2
+    }
+}
+        ''',
+        '''\
+a,b
+1,2
+3,4
+        ''',
+        '''\
+a,b
+1,1
+3,2
+        ''',
+        id='divide',
+    ),
 ])
 def test_interpret(
     src: str,
