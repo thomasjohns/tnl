@@ -303,6 +303,29 @@ HELLO,mars
         ''',
         id='lower',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        'noisea' -> lstrip 'noise'
+    }
+    values {
+        ['a'] -> lstrip 'noise'
+    }
+}
+        ''',
+        '''\
+noisea,b
+noisehello,world
+noisehello,mars
+        ''',
+        '''\
+a,b
+hello,world
+hello,mars
+        ''',
+        id='lstrip',
+    ),
 ])
 def test_interpret(
     src: str,
