@@ -349,6 +349,29 @@ hello,mars
         ''',
         id='remove_suffix',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        'placeholder' -> concat 'hello' ' ' 'message'
+    }
+    values {
+        ['hello message'] -> concat ['a'] ' ' ['b']
+    }
+}
+        ''',
+        '''\
+a,b,placeholder
+hello,world,placeholder
+hello,mars,placeholder
+        ''',
+        '''\
+a,b,hello message
+hello,world,hello world
+hello,mars,hello mars
+        ''',
+        id='concat',
+    ),
 ])
 def test_interpret(
     src: str,

@@ -2,6 +2,7 @@ from typing import Callable
 from typing import Dict
 from typing import Protocol
 from typing import Type
+from typing import Union
 
 import pandas as pd  # type: ignore
 
@@ -12,6 +13,11 @@ from tnl.ast import String
 # TODO: is there a better way to represent types here?
 #       we currently have some `# type: ignore` comments
 #       elsewhere (at least in `tnl/vm.py`).
+
+# TODO: It might be better to unwrap Strings and Numbers in the vm
+#       and just pass primitive types here (we do this with ColumnSelectors
+#       already, where they are unwraped to pandas Series; it would be
+#       good to be consistent).
 
 
 MAP_VALUES_IMPL_REGISTRY: Dict[str, Type['MapImpl']] = {}
@@ -179,6 +185,28 @@ class RemoveSuffixImpl(MapImpl):
     @staticmethod
     def map_string(s: str, *args: String) -> str:
         return s.removesuffix(args[0].data)
+
+
+@register_impl(map_name='concat')
+class ConcatImpl(MapImpl):
+    num_args = 3  # TODO: change to variable args when supported
+
+    @staticmethod
+    def map_values(
+        s: pd.Series,
+        *args: Union[String, pd.Series],
+    ) -> pd.Series:
+        operands: List[Union[str, pd.Series]] = []
+        for arg in args:
+            if isinstance(arg, String):
+                operands.append(arg.data)
+            else:
+                operands.append(arg)
+        return operands[0] + operands[1] + operands[2]
+
+    @staticmethod
+    def map_string(s: str, *args: String) -> str:
+        return args[0].data + args[1].data + args[2].data
 
 
 @register_impl(map_name='format')
