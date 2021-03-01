@@ -372,6 +372,26 @@ hello,mars,hello mars
         ''',
         id='concat',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['b'] -> power 3
+    }
+}
+        ''',
+        '''\
+a,b
+1,2
+3,4
+        ''',
+        '''\
+a,b
+1,8
+3,64
+        ''',
+        id='power',
+    ),
 ])
 def test_interpret(
     src: str,
