@@ -4,6 +4,7 @@ from typing import Protocol
 from typing import Type
 from typing import Union
 
+import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
 from tnl.ast import Number
@@ -79,6 +80,18 @@ class DivideImpl(MapImpl):
     @staticmethod
     def map_values(s: pd.Series, *args: Number) -> pd.Series:
         return s // args[0].data
+
+
+@register_impl(map_name='auto_inc')
+class AutoIncImpl(MapImpl):
+    num_args = 0
+
+    @staticmethod
+    def map_values(s: pd.Series) -> pd.Series:
+        return pd.Series(
+            data=(i for i in range(1, len(s) + 1)),
+            dtype=np.uint64,
+        )
 
 
 @register_impl(map_name='replace')

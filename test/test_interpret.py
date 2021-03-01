@@ -412,6 +412,30 @@ a,b
         ''',
         id='divide',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['idx'] -> auto_inc
+    }
+}
+        ''',
+        '''\
+idx,a,b
+placeholder,1,2
+placeholder,3,4
+placeholder,5,6
+placeholder,7,8
+        ''',
+        '''\
+idx,a,b
+1,1,2
+2,3,4
+3,5,6
+4,7,8
+        ''',
+        id='auto_inc',
+    ),
 ])
 def test_interpret(
     src: str,
