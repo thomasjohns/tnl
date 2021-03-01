@@ -436,6 +436,27 @@ idx,a,b
         ''',
         id='auto_inc',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['c'] -> ['b'] | round 1
+        ['b'] -> round 0
+    }
+}
+        ''',
+        '''\
+a,b,c
+1,1.5,placeholder
+3,4.4,placeholder
+        ''',
+        '''\
+a,b,c
+1,2.0,1.5
+3,4.0,4.4
+        ''',
+        id='round',
+    ),
 ])
 def test_interpret(
     src: str,

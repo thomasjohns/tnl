@@ -94,6 +94,16 @@ class AutoIncImpl(MapImpl):
         )
 
 
+@register_impl(map_name='round')
+class RoundImpl(MapImpl):
+    num_args = 1
+
+    @staticmethod
+    def map_values(s: pd.Series, *args: Number) -> pd.Series:
+        # TODO: this shows it probably makes sense to have Int and Float types
+        return s.round(decimals=args[0].data)
+
+
 @register_impl(map_name='replace')
 class ReplaceImpl(MapImpl):
     num_args = 2
