@@ -307,10 +307,10 @@ HELLO,mars
         '''\
 transform Test {
     headers {
-        'noisea' -> lstrip 'noise'
+        'noisea' -> remove_prefix 'noise'
     }
     values {
-        ['a'] -> lstrip 'noise'
+        ['a'] -> remove_prefix 'noise'
     }
 }
         ''',
@@ -324,7 +324,30 @@ a,b
 hello,world
 hello,mars
         ''',
-        id='lstrip',
+        id='remove_prefix',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        'anoise' -> remove_suffix 'noise'
+    }
+    values {
+        ['a'] -> remove_suffix 'noise'
+    }
+}
+        ''',
+        '''\
+anoise,b
+hellonoise,world
+hellonoise,mars
+        ''',
+        '''\
+a,b
+hello,world
+hello,mars
+        ''',
+        id='remove_suffix',
     ),
 ])
 def test_interpret(

@@ -155,17 +155,30 @@ class LowerImpl(MapImpl):
         return s.lower()
 
 
-@register_impl(map_name='lstrip')
-class LstripImpl(MapImpl):
+@register_impl(map_name='remove_prefix')
+class RemovePrefixImpl(MapImpl):
     num_args = 1
 
     @staticmethod
     def map_values(s: pd.Series, *args: String) -> pd.Series:
-        return s.str.lstrip(args[0].data)
+        return s.apply(lambda x: x.removeprefix(args[0].data))
 
     @staticmethod
     def map_string(s: str, *args: String) -> str:
-        return s.lstrip(args[0].data)
+        return s.removeprefix(args[0].data)
+
+
+@register_impl(map_name='remove_suffix')
+class RemoveSuffixImpl(MapImpl):
+    num_args = 1
+
+    @staticmethod
+    def map_values(s: pd.Series, *args: String) -> pd.Series:
+        return s.apply(lambda x: x.removesuffix(args[0].data))
+
+    @staticmethod
+    def map_string(s: str, *args: String) -> str:
+        return s.removesuffix(args[0].data)
 
 
 @register_impl(map_name='format')
