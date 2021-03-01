@@ -457,6 +457,28 @@ a,b,c
         ''',
         id='round',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['c'] -> mean ['a'] ['b']
+        ['b'] -> mean ['a'] 5
+        ['a'] -> mean 1 7
+    }
+}
+        ''',
+        '''\
+a,b,c
+1,2,placeholder
+3,4,placeholder
+        ''',
+        '''\
+a,b,c
+4.0,3.0,1.5
+4.0,4.0,3.5
+        ''',
+        id='mean',
+    ),
 ])
 def test_interpret(
     src: str,

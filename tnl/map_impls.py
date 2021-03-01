@@ -100,8 +100,27 @@ class RoundImpl(MapImpl):
 
     @staticmethod
     def map_values(s: pd.Series, *args: Number) -> pd.Series:
-        # TODO: this shows it probably makes sense to have Int and Float types
+        # TODO: this shows it probably makes sense to have Int and Float
+        #       types (that the type checker could check)
         return s.round(decimals=args[0].data)
+
+
+@register_impl(map_name='mean')
+class MeanImpl(MapImpl):
+    num_args = 2
+
+    @staticmethod
+    def map_values(
+        s: pd.Series,
+        *args: Union[pd.Series, Number],
+    ) -> pd.Series:
+        operands: List[Union[int, float, pd.Series]] = []
+        for arg in args:
+            if isinstance(arg, Number):
+                operands.append(arg.data)
+            else:
+                operands.append(arg)
+        return (operands[0] + operands[1]) / 2
 
 
 @register_impl(map_name='replace')
