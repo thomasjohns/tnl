@@ -280,6 +280,29 @@ True,False
         ''',
         id='true_and_false_tokens',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        'B' -> lower
+    }
+    values {
+        ['b'] -> lower
+    }
+}
+        ''',
+        '''\
+A,B
+HELLO,WORLD
+HELLO,MARS
+        ''',
+        '''\
+A,b
+HELLO,world
+HELLO,mars
+        ''',
+        id='lower',
+    ),
 ])
 def test_interpret(
     src: str,

@@ -142,6 +142,19 @@ class UpperImpl(MapImpl):
         return s.upper()
 
 
+@register_impl(map_name='lower')
+class LowerImpl(MapImpl):
+    num_args = 0
+
+    @staticmethod
+    def map_values(s: pd.Series) -> pd.Series:
+        return s.str.lower()
+
+    @staticmethod
+    def map_string(s: str) -> str:
+        return s.lower()
+
+
 @register_impl(map_name='format')
 class FormatImpl(MapImpl):
     num_args = 1
