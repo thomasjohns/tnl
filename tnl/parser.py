@@ -361,6 +361,8 @@ class Parser:
             expr = self.parse_true()
         elif self.cur_token.kind == TokenKind.FALSE:
             expr = self.parse_false()
+        elif self.cur_token.kind == TokenKind.LBRACE:
+            expr = self.parse_column_selector()
         else:
             # TODO for now assume string or number literal
             assert 0, self.cur_token
