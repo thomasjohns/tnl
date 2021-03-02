@@ -501,6 +501,28 @@ a,b,c
         ''',
         id='max',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['c'] -> min ['a'] ['b']
+        ['b'] -> min ['b'] 3
+        ['a'] -> min 3 5
+    }
+}
+        ''',
+        '''\
+a,b,c
+1,2,placeholder
+5,4,placeholder
+        ''',
+        '''\
+a,b,c
+3,2,1
+3,3,4
+        ''',
+        id='min',
+    ),
 ])
 def test_interpret(
     src: str,
