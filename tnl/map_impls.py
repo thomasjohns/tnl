@@ -1,10 +1,11 @@
 from typing import Callable
 from typing import Dict
+from typing import List
 from typing import Protocol
 from typing import Type
 from typing import Union
 
-import numpy as np  # type: ignore
+import numpy as np
 import pandas as pd  # type: ignore
 
 from tnl.ast import Number
@@ -121,6 +122,33 @@ class MeanImpl(MapImpl):
             else:
                 operands.append(arg)
         return (operands[0] + operands[1]) / 2
+
+
+@register_impl(map_name='max')
+class MaxImpl(MapImpl):
+    num_args = 2
+
+    @staticmethod
+    def map_values(
+        s: pd.Series,
+        *args: Union[pd.Series, Number],
+    ) -> pd.Series:
+        operands: List[Union[int, float, pd.Series]] = []
+        at_least_one_series = False
+        for arg in args:
+            if isinstance(arg, Number):
+                operands.append(arg.data)
+            else:
+                at_least_one_series = True
+                operands.append(arg)
+        if at_least_one_series:
+            df = pd.DataFrame(
+                {str(i): operand for i, operand in enumerate(operands)}
+            )
+            return df.max(axis=1)
+        else:
+            m = max(operands)
+            return pd.Series(m for _ in range(len(s)))
 
 
 @register_impl(map_name='replace')

@@ -479,6 +479,28 @@ a,b,c
         ''',
         id='mean',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['c'] -> max ['a'] ['b']
+        ['b'] -> max ['b'] 3
+        ['a'] -> max 3 5
+    }
+}
+        ''',
+        '''\
+a,b,c
+1,2,placeholder
+5,4,placeholder
+        ''',
+        '''\
+a,b,c
+5,3,2
+5,4,5
+        ''',
+        id='max',
+    ),
 ])
 def test_interpret(
     src: str,
