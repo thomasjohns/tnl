@@ -63,6 +63,20 @@ transform Test {
         ''',
         id='parse_values_pattern',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['b'] -> round 0
+        ['c'] -> {
+            | ['b']
+            | round 1
+        }
+    }
+}
+        ''',
+        id='parse_column_selector_in_expression'
+    ),
 ])
 def test_pretty_print_code(capsys, src):
     """

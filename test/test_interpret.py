@@ -280,6 +280,249 @@ True,False
         ''',
         id='true_and_false_tokens',
     ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        'B' -> lower
+    }
+    values {
+        ['b'] -> lower
+    }
+}
+        ''',
+        '''\
+A,B
+HELLO,WORLD
+HELLO,MARS
+        ''',
+        '''\
+A,b
+HELLO,world
+HELLO,mars
+        ''',
+        id='lower',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        'noisea' -> remove_prefix 'noise'
+    }
+    values {
+        ['a'] -> remove_prefix 'noise'
+    }
+}
+        ''',
+        '''\
+noisea,b
+noisehello,world
+noisehello,mars
+        ''',
+        '''\
+a,b
+hello,world
+hello,mars
+        ''',
+        id='remove_prefix',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        'anoise' -> remove_suffix 'noise'
+    }
+    values {
+        ['a'] -> remove_suffix 'noise'
+    }
+}
+        ''',
+        '''\
+anoise,b
+hellonoise,world
+hellonoise,mars
+        ''',
+        '''\
+a,b
+hello,world
+hello,mars
+        ''',
+        id='remove_suffix',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    headers {
+        'placeholder' -> concat 'hello' ' ' 'message'
+    }
+    values {
+        ['hello message'] -> concat ['a'] ' ' ['b']
+    }
+}
+        ''',
+        '''\
+a,b,placeholder
+hello,world,placeholder
+hello,mars,placeholder
+        ''',
+        '''\
+a,b,hello message
+hello,world,hello world
+hello,mars,hello mars
+        ''',
+        id='concat',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['b'] -> power 3
+    }
+}
+        ''',
+        '''\
+a,b
+1,2
+3,4
+        ''',
+        '''\
+a,b
+1,8
+3,64
+        ''',
+        id='power',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['b'] -> divide 2
+    }
+}
+        ''',
+        '''\
+a,b
+1,2
+3,4
+        ''',
+        '''\
+a,b
+1,1
+3,2
+        ''',
+        id='divide',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['idx'] -> auto_inc
+    }
+}
+        ''',
+        '''\
+idx,a,b
+placeholder,1,2
+placeholder,3,4
+placeholder,5,6
+placeholder,7,8
+        ''',
+        '''\
+idx,a,b
+1,1,2
+2,3,4
+3,5,6
+4,7,8
+        ''',
+        id='auto_inc',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['c'] -> ['b'] | round 1
+        ['b'] -> round 0
+    }
+}
+        ''',
+        '''\
+a,b,c
+1,1.5,placeholder
+3,4.4,placeholder
+        ''',
+        '''\
+a,b,c
+1,2.0,1.5
+3,4.0,4.4
+        ''',
+        id='round',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['c'] -> mean ['a'] ['b']
+        ['b'] -> mean ['a'] 5
+        ['a'] -> mean 1 7
+    }
+}
+        ''',
+        '''\
+a,b,c
+1,2,placeholder
+3,4,placeholder
+        ''',
+        '''\
+a,b,c
+4.0,3.0,1.5
+4.0,4.0,3.5
+        ''',
+        id='mean',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['c'] -> max ['a'] ['b']
+        ['b'] -> max ['b'] 3
+        ['a'] -> max 3 5
+    }
+}
+        ''',
+        '''\
+a,b,c
+1,2,placeholder
+5,4,placeholder
+        ''',
+        '''\
+a,b,c
+5,3,2
+5,4,5
+        ''',
+        id='max',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['c'] -> min ['a'] ['b']
+        ['b'] -> min ['b'] 3
+        ['a'] -> min 3 5
+    }
+}
+        ''',
+        '''\
+a,b,c
+1,2,placeholder
+5,4,placeholder
+        ''',
+        '''\
+a,b,c
+3,2,1
+3,3,4
+        ''',
+        id='min',
+    ),
 ])
 def test_interpret(
     src: str,

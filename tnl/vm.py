@@ -1,4 +1,5 @@
 from typing import List
+from typing import Union
 
 import pandas as pd  # type: ignore
 
@@ -129,7 +130,9 @@ class VM(ASTVisitor):
         for operation in node.operations:
             if isinstance(operation, ColumnSelector):
                 # TODO consider copy perf later
-                s = self.data[operation.header].copy()
+                header = operation.header
+                assert isinstance(header, String)
+                s = self.data[header.data].copy()
             elif isinstance(operation, String):
                 s = pd.Series(operation.data for _ in range(len(self.data)))
             elif isinstance(operation, Number):
@@ -138,7 +141,22 @@ class VM(ASTVisitor):
                 s = pd.Series(operation.data for _ in range(len(self.data)))
             elif isinstance(operation, Map):
                 map_impl = MAP_VALUES_IMPL_REGISTRY[operation.name.data]
-                s = map_impl.map_values(s, *operation.args)  # type: ignore
+                map_args: List[Union[String, Number, pd.Series]] = []
+                for op_arg in operation.args:
+                    if isinstance(op_arg, String):
+                        map_args.append(op_arg)
+                    elif isinstance(op_arg, Number):
+                        map_args.append(op_arg)
+                    elif isinstance(op_arg, ColumnSelector):
+                        # TODO consider copy perf later
+                        header = op_arg.header
+                        assert isinstance(header, String)
+                        arg = self.data[header.data].copy()
+                        map_args.append(arg)
+                    else:
+                        print(type(op_arg))
+                        assert 0, 'failure in type checker at some point'
+                s = map_impl.map_values(s, *map_args)  # type: ignore
             else:
                 # FIXME
                 assert 0, 'not implemented'
