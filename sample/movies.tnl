@@ -1,0 +1,17 @@
+transform Movies {
+    headers {
+        'date' -> 'Year'
+        'name' -> 'Title'
+        'producer' -> 'Producer(s)'
+    }
+
+    values {
+        ['Year'] -> slice 0 4
+        ['Title'] -> trim | title | replace 'Of' 'of'
+        ['Producer(s)'] -> {
+            | trim
+            | replace ';' ','
+            | replace_last ',' ', and'
+        }
+    }
+}
