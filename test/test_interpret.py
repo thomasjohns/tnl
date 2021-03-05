@@ -396,6 +396,46 @@ a,b
         '''\
 transform Test {
     values {
+        ['b'] -> add 2
+    }
+}
+        ''',
+        '''\
+a,b
+1,2
+3,4
+        ''',
+        '''\
+a,b
+1,4
+3,6
+        ''',
+        id='add',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
+        ['b'] -> mult 3
+    }
+}
+        ''',
+        '''\
+a,b
+1,2
+3,4
+        ''',
+        '''\
+a,b
+1,6
+3,12
+        ''',
+        id='mult',
+    ),
+    pytest.param(
+        '''\
+transform Test {
+    values {
         ['b'] -> divide 2
     }
 }
