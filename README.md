@@ -2,6 +2,35 @@
 
 A domain specific language for transforming tabular data. 
 
+## Contents
+* [Example program](#example-program)
+* [TNL Concepts](#tnl-concepts)
+* [CLI options](#cli-options)
+* [Error checking](#error-checking)
+* [Features that may be implemented at some point](#features-that-may-be-implemented-at-some-point)
+* [Current project status](#current-project-status)
+* [Development](#development)
+* [Built-in maps](#built-in-maps)
+   * [add [number]](#add-number)
+   * [mult [number]](#mult-number)
+   * [divide [number]](#divide-number)
+   * [power [number]](#power-number)
+   * [auto_inc](#auto_inc)
+   * [round [number]](#round-number)
+   * [max [column_selector|number] [column_selector|number]](#max-column_selectornumber-column_selectornumber)
+   * [min [column_selector|number] [column_selector|number]](#min-column_selectornumber-column_selectornumber)
+   * [mean [column_selector|number] [column_selector|number]](#mean-column_selectornumber-column_selectornumber)
+   * [replace_last [string] [string]](#replace_last-string-string)
+   * [trim](#trim)
+   * [slice [integer] [integer]](#slice-integer-integer)
+   * [title](#title)
+   * [upper](#upper)
+   * [lower](#lower)
+   * [remove_prefix [string]](#remove_prefix-string)
+   * [remove_suffix [string]](#remove_suffix-string)
+   * [concat [string|column_selector] [string|column_selector] [string|column_selector]](#concat-stringcolumn_selector-stringcolumn_selector-stringcolumn_selector)
+   * [format [format_string]](#format-format_string)
+
 ## Example program
 Given the input
 
@@ -45,7 +74,7 @@ would produce
 
 This example can be tried from this repo with: `tnl sample/movies.tnl sample/movies.csv`
 
-## Concepts
+## TNL Concepts
 Right now header and value transforms must exist inside a named `transform`
 block, and inside `headers` and `values` blocks. This is temporary. In the
 future the program above wll be able to be expressed as:
