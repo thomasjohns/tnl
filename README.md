@@ -1,4 +1,4 @@
-# TNL - Table Normalization Lanugage
+# TNL - Table Normalization Language
 
 A domain specific language for transforming tabular data. 
 
@@ -114,8 +114,8 @@ The right-hand-side of the `->` is a single or multi-line pipeline. This is a
 set of map calls, where data flows left-to-right, top-to-bottom. Right now, TNL
 only supports a set of built-in maps (enumerated at the bottom of this page).
 Maps in a pipeline are separated by `|`, where a leading `|` is optional. A
-single-line pipeline does not have curly braces `{}`, end the pipeline ends at
-the end of the line. Mulit-line pipelines (a syntactic sugar), must be
+single-line pipeline does not have curly braces `{}`, and the pipeline ends at
+the end of the line. Multi-line pipelines (a syntactic sugar), must be
 expressed in curly braces `{...}`. Different maps take different types of
 arguments (`numbers`, `integers`, `strings`, `patterns`, `column_selectors`
 etc.). Some can be applied to both `headers` and `values`.
