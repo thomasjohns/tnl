@@ -77,7 +77,7 @@ This example can be tried from this repo with: `tnl sample/movies.tnl sample/mov
 ## TNL Concepts
 Right now header and value transforms must exist inside a named `transform`
 block, and inside `headers` and `values` blocks. This is temporary. In the
-future the program above wll be able to be expressed as:
+future the program above will be able to be expressed as:
 ```
 'date' -> 'Year'
 'name' -> 'Title'
